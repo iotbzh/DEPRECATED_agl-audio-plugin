@@ -120,7 +120,7 @@ pa_tracker *pa_tracker_init (struct userdata *u)
 	                             PA_HOOK_LATE, card_put, u);
 	card->unlink = pa_hook_connect (hooks + PA_CORE_HOOK_CARD_UNLINK,
 	                                PA_HOOK_LATE, card_unlink, u);
-	card->profchg = pa_hook_connect (hooks + PA_CORE_HOOK_CARD_UNLINK,
+	card->profchg = pa_hook_connect (hooks + PA_CORE_HOOK_CARD_PROFILE_CHANGED,
 	                                 PA_HOOK_LATE, card_profile_changed, u);
 
 	 /* port */
@@ -154,7 +154,7 @@ pa_tracker *pa_tracker_init (struct userdata *u)
 	 /* source-output */
 	sout->neew = pa_hook_connect (hooks + PA_CORE_HOOK_SOURCE_OUTPUT_NEW,
 		                      PA_HOOK_EARLY, source_output_new, u);
-	sout->put = pa_hook_connect (hooks + PA_CORE_HOOK_SOURCE_OUTPUT_UNLINK,
+	sout->put = pa_hook_connect (hooks + PA_CORE_HOOK_SOURCE_OUTPUT_PUT,
 				     PA_HOOK_LATE, source_output_put, u);
 	sout->unlink = pa_hook_connect (hooks + PA_CORE_HOOK_SOURCE_OUTPUT_UNLINK,
 		                        PA_HOOK_LATE, source_output_unlink, u);
