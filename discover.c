@@ -586,6 +586,10 @@ bool pa_discover_preroute_sink_input(struct userdata *u, pa_sink_input_new_data 
 	pa_assert_se (nodeset = u->nodeset);
 	pa_assert_se (pl = data->proplist);
 
+	 /* is this a valid sink input ? */
+	if (!data->client)
+		return true;
+
 	 /* is there an existing matching node ? */
 	node = agl_node_get_from_data (u, agl_input, data);
 
