@@ -757,6 +757,26 @@ void pa_discover_add_sink_input (struct userdata *u, pa_sink_input *sinp)
 	node = agl_node_get_from_client (u, sinp->client);
 	if (!node) return;
 
-	 /* start the default routing */
-	implement_default_route (u, node, NULL, pa_utils_new_stamp ());
+	 /* start routing */
+	agl_router_register_node (u, node);
+}
+
+void pa_discover_remove_sink_input (struct userdata *u, pa_sink_input *sinp)
+{
+	pa_core *core;
+	agl_node *node;
+
+	pa_assert (u);
+	pa_assert (sinp);
+	pa_assert_se (core = u->core);
+
+	if (!sinp->client)
+		return;
+
+	 /* is there an existing matching node ? */
+	node = agl_node_get_from_client (u, sinp->client);
+	if (!node) return;
+
+	 /* stop routing */
+	agl_router_unregister_node (u, node);
 }

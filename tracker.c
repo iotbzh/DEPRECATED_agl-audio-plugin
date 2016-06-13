@@ -346,6 +346,12 @@ static pa_hook_result_t sink_input_unlink (void *hook_data,
                                            void *call_data,
                                            void *slot_data)
 {
+	/* called by each client when stopping sound */
+	pa_sink_input *sinp = (pa_sink_input *)call_data;
+	struct userdata *u = (struct userdata *)slot_data;
+
+	pa_discover_remove_sink_input (u, sinp);
+
 	return PA_HOOK_OK;
 }
 

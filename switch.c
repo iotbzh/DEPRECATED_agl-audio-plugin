@@ -135,7 +135,7 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 
 		/* ONLY "FROM" IS DEFINED */
 		else {
-			/* only works with a device, use default input prerouting - TODO */
+			/* only works with a stream, use default input prerouting */
 			if (from->implement == agl_device) {
 				pa_log_debug ("default routing for a device input is not supported yet");
 				return false;
@@ -165,38 +165,28 @@ bool agl_switch_teardown_link (struct userdata *u, agl_node *from, agl_node *to)
 
 	pa_assert (u);
 	pa_assert_se (core = u->core);
-	pa_assert (from || from->direction == agl_input);
-	pa_assert (to || to->direction == agl_output);
 
-	switch (from->implement) {
-		case agl_stream:
-		switch (to->implement) {
-			/* STREAM TO STREAM : NOT IMPLEMENTED */
-			case agl_stream:
-				pa_log_debug ("routing to streams is not implemented yet");
-				break;
-			/* STREAM TO DEVICE : NOT OK */
-			case agl_device:
-				//if (!teardown_explicit_stream2dev_link (u, from, to))
-				//	return false;
-				break;
-			default:
-				pa_log ("can't teardown link: invalid sink node");
-				return false;
-		}
-		break;
+	pa_assert (from || to);
 
-		case agl_device:
-		 /* DEVICE TO STREAM OR DEVICE TO DEVICE : NOT HANDLED */ 
-			pa_log_debug ("input device routing is not implemented yet");
-			break;
+	/* "TO" IS DEFINED */
+	if (to) {
 
-		default:
-			pa_log ("can't teardown link: invalid source node");
+	}
+	/* ONLY "FROM" IS DEFINED */
+	else {
+		/* only works with a stream */
+		if (from->implement == agl_device) {
+			pa_log_debug ("default routing for a device input is not supported");
 			return false;
+		}
+		/* (the rest supposes "from->implement == agl_stream") */
+		if (from->loopnode)
+			pa_loopnode_destroy (u, from->loopnode);
+		if (from->nullsink)
+			pa_utils_destroy_null_sink (u, from->nullsink);
 	}
 
-	pa_log_debug("link %s => %s is torn down", from->amname, to->amname);
+	//pa_log_debug("link %s => %s is torn down", from->amname, to->amname);
 
 	return true;
 }

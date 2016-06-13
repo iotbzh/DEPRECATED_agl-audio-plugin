@@ -84,6 +84,22 @@ void pa_router_done (struct userdata *u)
 	}
 }
 
+void agl_router_register_node (struct userdata *u, agl_node *node)
+{
+	pa_assert (u);
+	pa_assert (node);
+
+	implement_default_route (u, node, NULL, pa_utils_new_stamp ());
+}
+
+void agl_router_unregister_node (struct userdata *u, agl_node *node)
+{
+	pa_assert (u);
+	pa_assert (node);
+
+	remove_routes (u, node, NULL, pa_utils_new_stamp ());
+}
+
 agl_node *agl_router_make_prerouting (struct userdata *u, agl_node *data)
 {
 	pa_router *router;
@@ -195,4 +211,13 @@ agl_node *find_default_route (struct userdata *u, agl_node *start, uint32_t stam
 	/* TODO */
 
 	return NULL;
+}
+
+void remove_routes (struct userdata *u, agl_node *start, agl_node *end, uint32_t stamp)
+{
+	if (start->direction == agl_input) {
+		agl_switch_teardown_link (u, start, end);
+	} else {
+		agl_switch_teardown_link (u, end, start);
+	}
 }

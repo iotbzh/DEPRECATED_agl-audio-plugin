@@ -70,10 +70,14 @@ struct agl_connection {
 
 pa_router *pa_router_init (struct userdata *);
 void pa_router_done (struct userdata *);
+
+void agl_router_register_node (struct userdata *, agl_node *);
+void agl_router_unregister_node (struct userdata *, agl_node *);
 agl_node *agl_router_make_prerouting (struct userdata *, agl_node *);
 void agl_router_make_routing (struct userdata *);
 
 void implement_default_route (struct userdata *, agl_node *, agl_node *, uint32_t);
 agl_node *find_default_route (struct userdata *, agl_node *, uint32_t);
+void remove_routes (struct userdata *, agl_node *, agl_node*, uint32_t);
 
 #endif
