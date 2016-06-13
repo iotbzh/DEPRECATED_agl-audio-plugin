@@ -34,6 +34,7 @@ $ pactl load-module mypamodule
 #include <pulsecore/modargs.h>		/* for "pa_modargs" */
 
 #include "userdata.h"			/* for "struct userdata" */
+#include "config.h"			/* for "pa_config_...()" */
 #include "utils.h"			/* for "struct pa_null_sink", "pa_utils_create_null_sink()"... */
 #include "loopback.h"			/* for "struct pa_loopback/loopnode" */
 #include "zone.h"			/* for "struct pa_zoneset" */
@@ -80,6 +81,8 @@ int pa__init (pa_module *m)
 	const char      *amsocktype;	/* Optional external routing daemon: socket type ("unix"/"tcp") */
 	const char      *amaddr;	/* Optional external routing daemon: socket address (path/ip address) */
 	const char      *amport;	/* Optional external routing daemon: socket port ("tcp" type only) */
+	const char	*cfgpath;
+	char buf[4096];
 
 	pa_assert (m);
 
@@ -114,6 +117,11 @@ int pa__init (pa_module *m)
 	u->tracker   = pa_tracker_init (u);
 
 	m->userdata = u;
+
+	 /* apply the config file */
+
+	cfgpath = pa_config_file_get_path (cfgdir, cfgfile, buf, sizeof(buf));
+	pa_config_parse_file (u, cfgpath);
 
 	 /* really initialize the module's core logic */
 

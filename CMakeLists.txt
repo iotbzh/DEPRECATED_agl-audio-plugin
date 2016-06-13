@@ -38,7 +38,7 @@ SET(plugin_install_dir ${CMAKE_INSTALL_LIBDIR}/pulse-6.0/modules)
 
 ############################################################
 
-ADD_LIBRARY(agl-audio-plugin MODULE module.c audiomgr.c classify.c discover.c loopback.c node.c router.c socketif.c switch.c tracker.c utils.c zone.c)
+ADD_LIBRARY(agl-audio-plugin MODULE module.c audiomgr.c classify.c config.c discover.c loopback.c node.c router.c socketif.c switch.c tracker.c utils.c zone.c)
 INCLUDE_DIRECTORIES(${include_dirs})
 TARGET_LINK_LIBRARIES(agl-audio-plugin ${link_libraries})
 SET_TARGET_PROPERTIES(agl-audio-plugin PROPERTIES PREFIX ""

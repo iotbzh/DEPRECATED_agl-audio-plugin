@@ -28,15 +28,14 @@
 
 #define AGL_ZONE_MAX 8	/* max 8 zones, demo is using 5 */ /* DEFINED IN MURPHY */
 
-/*typedef bool (*agl_rtgroup_accept_t)(struct userdata *, agl_rtgroup *, agl_node *);*/
-/*typedef int (*agl_rtgroup_compare_t)(struct userdata *, agl_rtgroup *, agl_node *, agl_node *);*/
+typedef bool (*agl_rtgroup_accept_t)(struct userdata *, agl_rtgroup *, agl_node *);
+typedef int (*agl_rtgroup_compare_t)(struct userdata *, agl_rtgroup *, agl_node *, agl_node *);
 
 struct agl_rtgroup {
 	char *name;      /**< name of the rtgroup */
 	agl_dlist entries;   /**< listhead of ordered rtentries */
-	/*agl_rtgroup_accept_t accept;*/ /**< function pointer, whether to accept a node or not */
-	/*agl_rtgroup_compare_t compare;*/ /**< function pointer, comparision for ordering */
-	/*scripting_rtgroup *scripting;*/ /**< data for scripting, if any */
+	agl_rtgroup_accept_t accept; /**< function pointer, whether to accept a node or not */
+	agl_rtgroup_compare_t compare; /**< function pointer, comparision for ordering */
 };
 
 typedef struct {
@@ -70,6 +69,11 @@ struct agl_connection {
 
 pa_router *pa_router_init (struct userdata *);
 void pa_router_done (struct userdata *);
+
+bool agl_router_default_accept (struct userdata *, agl_rtgroup *, agl_node *);
+bool agl_router_phone_accept (struct userdata *, agl_rtgroup *, agl_node *);
+int agl_router_default_compare (struct userdata *, agl_rtgroup *, agl_node *, agl_node *);
+int agl_router_phone_compare (struct userdata *, agl_rtgroup *, agl_node *, agl_node *);
 
 void agl_router_register_node (struct userdata *, agl_node *);
 void agl_router_unregister_node (struct userdata *, agl_node *);

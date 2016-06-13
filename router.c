@@ -84,6 +84,30 @@ void pa_router_done (struct userdata *u)
 	}
 }
 
+bool agl_router_default_accept (struct userdata *u, agl_rtgroup *rtg, agl_node *node)
+{
+	/* TODO */
+	return true;
+}
+
+bool agl_router_phone_accept (struct userdata *u, agl_rtgroup *rtg, agl_node *node)
+{
+	/* TODO */
+	return true;
+}
+
+int agl_router_default_compare (struct userdata *u, agl_rtgroup *rtg, agl_node *n1, agl_node *n2)
+{
+	/* TODO */
+	return 1;
+}
+
+int agl_router_phone_compare (struct userdata *u, agl_rtgroup *rtg, agl_node *n1, agl_node *n2)
+{
+	/* TODO */
+	return 1;
+}
+
 void agl_router_register_node (struct userdata *u, agl_node *node)
 {
 	pa_assert (u);
