@@ -29,30 +29,30 @@
 
 #include "userdata.h"
 
-typedef struct pa_loopnode pa_loopnode;
-struct pa_loopnode {
-	PA_LLIST_FIELDS(pa_loopnode);
+typedef struct agl_loopnode agl_loopnode;
+struct agl_loopnode {
+	PA_LLIST_FIELDS(agl_loopnode);
 	uint32_t   module_index;
 	uint32_t   node_index;
 	uint32_t   sink_input_index;
 	uint32_t   source_output_index;
 };
 
-typedef struct pa_loopback {
-    PA_LLIST_HEAD(pa_loopnode, loopnodes);
-} pa_loopback;
+typedef struct agl_loopback {
+    PA_LLIST_HEAD(agl_loopnode, loopnodes);
+} agl_loopback;
 
 typedef enum {
-	PA_LOOPNODE_TYPE_UNKNOWN = 0,
-	PA_LOOPNODE_SOURCE,
-	PA_LOOPNODE_SINK,
-} pa_loopnode_type;
+	AGL_LOOPNODE_TYPE_UNKNOWN = 0,
+	AGL_LOOPNODE_SOURCE,
+	AGL_LOOPNODE_SINK,
+} agl_loopnode_type;
 
-pa_loopback *pa_loopback_init (void);
-void pa_loopback_done (struct userdata *, pa_loopback *);
+agl_loopback *agl_loopback_init (void);
+void agl_loopback_done (struct userdata *, agl_loopback *);
 
-pa_loopnode *pa_loopnode_create (struct userdata *, pa_loopnode_type,
-				 uint32_t, uint32_t, uint32_t);
-void pa_loopnode_destroy (struct userdata *, pa_loopnode *);
+agl_loopnode *agl_loopnode_create (struct userdata *, agl_loopnode_type,
+				   uint32_t, uint32_t, uint32_t);
+void agl_loopnode_destroy (struct userdata *, agl_loopnode *);
 
 #endif

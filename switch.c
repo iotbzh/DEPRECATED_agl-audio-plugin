@@ -147,10 +147,10 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 				return false;
 			}
 
-			sink = pa_utils_get_primary_alsa_sink (u);
-			source = pa_utils_get_null_source (u, from->nullsink);
+			sink = agl_utils_get_primary_alsa_sink (u);
+			source = agl_utils_get_null_source (u, from->nullsink);
 
-			from->loopnode = pa_loopnode_create (u, PA_LOOPNODE_SINK, from->index, source->index, sink->index);
+			from->loopnode = agl_loopnode_create (u, AGL_LOOPNODE_SINK, from->index, source->index, sink->index);
 		}
 	}
 
@@ -181,9 +181,9 @@ bool agl_switch_teardown_link (struct userdata *u, agl_node *from, agl_node *to)
 		}
 		/* (the rest supposes "from->implement == agl_stream") */
 		if (from->loopnode)
-			pa_loopnode_destroy (u, from->loopnode);
+			agl_loopnode_destroy (u, from->loopnode);
 		if (from->nullsink)
-			pa_utils_destroy_null_sink (u, from->nullsink);
+			agl_utils_destroy_null_sink (u, from->nullsink);
 	}
 
 	//pa_log_debug("link %s => %s is torn down", from->amname, to->amname);

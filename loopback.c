@@ -23,27 +23,27 @@
 #include "utils.h"
 #include "list.h"
 
-pa_loopback *pa_loopback_init (void)
+agl_loopback *agl_loopback_init (void)
 {
-	pa_loopback *loopback = pa_xnew0 (pa_loopback, 1);
+	agl_loopback *loopback = pa_xnew0 (agl_loopback, 1);
 
 	return loopback;
 }
 
-void pa_loopback_done (struct userdata *u, pa_loopback *loopback)
+void agl_loopback_done (struct userdata *u, agl_loopback *loopback)
 {
-	pa_loopnode *loop, *n;
+	agl_loopnode *loop, *n;
 	pa_core *core;
 
 	pa_assert_se (core = u->core);
 
 	PA_LLIST_FOREACH_SAFE(loop, n, loopback->loopnodes) {
-		pa_module_unload_by_index(core, loop->module_index, false);
+		pa_module_unload_by_index (core, loop->module_index, false);
     }
 }
 
-pa_loopnode *pa_loopnode_create (struct userdata *u, pa_loopnode_type type,
-				 uint32_t node_index, uint32_t source_index, uint32_t sink_index)
+agl_loopnode *agl_loopnode_create (struct userdata *u, agl_loopnode_type type,
+				   uint32_t node_index, uint32_t source_index, uint32_t sink_index)
 {
 	pa_core *core;
 	pa_module *module;
@@ -53,7 +53,7 @@ pa_loopnode *pa_loopnode_create (struct userdata *u, pa_loopnode_type type,
 	const char *sinam;
 	pa_source_output *sout;
 	pa_sink_input *sinp;
-	pa_loopnode *loopnode;
+	agl_loopnode *loopnode;
 	int idx;
 	char args[256];
 
@@ -61,9 +61,9 @@ pa_loopnode *pa_loopnode_create (struct userdata *u, pa_loopnode_type type,
 	pa_assert_se (core = u->core);
 
 	source = pa_idxset_get_by_index (core->sources, source_index);
-	sonam = pa_utils_get_source_name (source);
 	sink = pa_idxset_get_by_index (core->sinks, sink_index);
-	sinam = pa_utils_get_sink_name (sink);
+	sonam = agl_utils_get_source_name (source);
+	sinam = agl_utils_get_sink_name (sink);
 
 	snprintf (args, sizeof(args), "source=\"%s\" sink=\"%s\"", sonam, sinam);
 	module = pa_module_load (core, "module-loopback", args);
@@ -89,7 +89,7 @@ pa_loopnode *pa_loopnode_create (struct userdata *u, pa_loopnode_type type,
 		return NULL;
 	}
 
-	loopnode = pa_xnew0 (pa_loopnode, 1);
+	loopnode = pa_xnew0 (agl_loopnode, 1);
 	loopnode->module_index = module->index;
 	loopnode->source_output_index = sout->index;
 	loopnode->sink_input_index = sinp->index;
@@ -97,7 +97,7 @@ pa_loopnode *pa_loopnode_create (struct userdata *u, pa_loopnode_type type,
 	return loopnode;
 }
 
-void pa_loopnode_destroy (struct userdata *u, pa_loopnode *loopnode)
+void agl_loopnode_destroy (struct userdata *u, agl_loopnode *loopnode)
 {
 	pa_core      *core;
 	pa_module    *module;

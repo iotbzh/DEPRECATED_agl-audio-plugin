@@ -24,7 +24,7 @@
 
 #include "userdata.h"
 
-struct pa_discover {
+struct agl_discover {
     /* criteria for filtering sinks and sources */
 	unsigned chmin;    /**< minimum of max channels */
 	unsigned chmax;    /**< maximum of max channels */
@@ -37,22 +37,22 @@ struct pa_discover {
 	} nodes;
 };
 
-struct pa_discover *pa_discover_init (struct userdata *);
-void pa_discover_done (struct userdata *);
+struct agl_discover *agl_discover_init (struct userdata *);
+void agl_discover_done (struct userdata *);
 
-void pa_discover_add_card (struct userdata *, pa_card *);
-void pa_discover_remove_card (struct userdata *, pa_card *);
-void pa_discover_add_sink (struct userdata *, pa_sink *, bool);
-void pa_discover_remove_sink (struct userdata *, pa_sink *);
-void pa_discover_add_source (struct userdata *, pa_source *);
-void pa_discover_remove_source (struct userdata *, pa_source *);
-void pa_discover_add_sink_input (struct userdata *, pa_sink_input *);
-void pa_discover_remove_sink_input (struct userdata *, pa_sink_input *);
-bool pa_discover_preroute_sink_input (struct userdata *, pa_sink_input_new_data *);
-void pa_discover_register_sink_input (struct userdata *, pa_sink_input *);
-void pa_discover_register_source_output (struct userdata *, pa_source_output *);
+void agl_discover_add_card (struct userdata *, pa_card *);
+void agl_discover_remove_card (struct userdata *, pa_card *);
+void agl_discover_add_sink (struct userdata *, pa_sink *, bool);
+void agl_discover_remove_sink (struct userdata *, pa_sink *);
+void agl_discover_add_source (struct userdata *, pa_source *);
+void agl_discover_remove_source (struct userdata *, pa_source *);
+void agl_discover_add_sink_input (struct userdata *, pa_sink_input *);
+void agl_discover_remove_sink_input (struct userdata *, pa_sink_input *);
+bool agl_discover_preroute_sink_input (struct userdata *, pa_sink_input_new_data *);
+void agl_discover_register_sink_input (struct userdata *, pa_sink_input *);
+void agl_discover_register_source_output (struct userdata *, pa_source_output *);
 
-agl_node *pa_discover_find_node_by_key (struct userdata *, const char *);
-void pa_discover_add_node_to_ptr_hash (struct userdata *, void *, agl_node *);
+agl_node *agl_discover_find_node_by_key (struct userdata *, const char *);
+void agl_discover_add_node_to_ptr_hash (struct userdata *, void *, agl_node *);
 
 #endif

@@ -23,14 +23,14 @@
 #include "switch.h"
 #include "utils.h"
 
-pa_router *pa_router_init (struct userdata *u)
+agl_router *agl_router_init (struct userdata *u)
 {
-	pa_router *router;
+	agl_router *router;
 	size_t num_classes;
 
 	num_classes = agl_application_class_end;
 
-	router = pa_xnew0 (pa_router, 1);
+	router = pa_xnew0 (agl_router, 1);
 	router->rtgroups.input = pa_hashmap_new (pa_idxset_string_hash_func,
 		                                 pa_idxset_string_compare_func);
 	router->rtgroups.output = pa_hashmap_new (pa_idxset_string_hash_func,
@@ -44,9 +44,9 @@ pa_router *pa_router_init (struct userdata *u)
 	return router;
 }
 
-void pa_router_done (struct userdata *u)
+void agl_router_done (struct userdata *u)
 {
-	pa_router *router;
+	agl_router *router;
 	agl_node *e,*n;
 	agl_connection *conn, *c;
 	agl_rtgroup *rtg;
@@ -113,7 +113,7 @@ void agl_router_register_node (struct userdata *u, agl_node *node)
 	pa_assert (u);
 	pa_assert (node);
 
-	implement_default_route (u, node, NULL, pa_utils_new_stamp ());
+	implement_default_route (u, node, NULL, agl_utils_new_stamp ());
 }
 
 void agl_router_unregister_node (struct userdata *u, agl_node *node)
@@ -121,12 +121,12 @@ void agl_router_unregister_node (struct userdata *u, agl_node *node)
 	pa_assert (u);
 	pa_assert (node);
 
-	remove_routes (u, node, NULL, pa_utils_new_stamp ());
+	remove_routes (u, node, NULL, agl_utils_new_stamp ());
 }
 
 agl_node *agl_router_make_prerouting (struct userdata *u, agl_node *data)
 {
-	pa_router *router;
+	agl_router *router;
 	int priority;
 	static bool done_prerouting;
 	uint32_t stamp;
@@ -141,7 +141,7 @@ agl_node *agl_router_make_prerouting (struct userdata *u, agl_node *data)
 
 	done_prerouting = false;
 	target = NULL;
-	stamp = pa_utils_new_stamp ();
+	stamp = agl_utils_new_stamp ();
 
 	//make_explicit_routes (u, stamp);
 
@@ -181,7 +181,7 @@ agl_node *agl_router_make_prerouting (struct userdata *u, agl_node *data)
 
 void agl_router_make_routing (struct userdata *u)
 {
-	pa_router *router;
+	agl_router *router;
 	static bool ongoing_routing;	/* true while we are actively routing */
 	uint32_t stamp;
 	agl_node *start, *end;
@@ -192,7 +192,7 @@ void agl_router_make_routing (struct userdata *u)
 	if (ongoing_routing)		/* already routing, canceling */
 		return;
 	ongoing_routing = true;
-	stamp = pa_utils_new_stamp ();
+	stamp = agl_utils_new_stamp ();
 
 	pa_log_debug("stamp for routing: %d", stamp);
 

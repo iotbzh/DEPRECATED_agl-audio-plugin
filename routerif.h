@@ -3,8 +3,8 @@
 
 #include "userdata.h"
 
-pa_routerif *pa_routerif_init (struct userdata *, const char *,
-	                       const char *, const char *);
-void pa_routerif_done (struct userdata *);
+agl_routerif *agl_routerif_init (struct userdata *, const char *,
+	                         const char *, const char *);
+void agl_routerif_done (struct userdata *);
 
 #endif

@@ -21,27 +21,27 @@
  */
 #include "routerif.h"
 
-struct pa_routerif {
+struct agl_routerif {
     int  sock;
 };
 
-pa_routerif *pa_routerif_init (struct userdata *u,
-                               const char      *socktyp,
-                               const char      *addr,
-                               const char      *port)
+agl_routerif *agl_routerif_init (struct userdata *u,
+                                 const char      *socktyp,
+                                 const char      *addr,
+                                 const char      *port)
 {
 	pa_module *m = u->module;
-	pa_routerif *routerif = NULL;
+	agl_routerif *routerif = NULL;
     
-	routerif = pa_xnew0 (pa_routerif, 1);
+	routerif = pa_xnew0 (agl_routerif, 1);
 	routerif->sock = -1;
 
 	return routerif;
 }
 
-void pa_routerif_done (struct userdata *u)
+void agl_routerif_done (struct userdata *u)
 {
-	pa_routerif *routerif;
+	agl_routerif *routerif;
 
 	if (u && (routerif = u->routerif)) {
 		if (routerif->sock >= 0)

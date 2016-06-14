@@ -21,29 +21,29 @@
  */
 #include "zone.h"
 
-struct pa_zoneset {
+struct agl_zoneset {
 	struct {
 		pa_hashmap     *hash;
 		agl_zone       *index[AGL_ZONE_MAX];
 	} zones;
 };
 
-pa_zoneset *pa_zoneset_init (struct userdata *u)
+agl_zoneset *agl_zoneset_init (struct userdata *u)
 {
-	pa_zoneset *zs;
+	agl_zoneset *zs;
 
 	pa_assert (u);
 
-	zs = pa_xnew0 (pa_zoneset, 1);
+	zs = pa_xnew0 (agl_zoneset, 1);
 	zs->zones.hash = pa_hashmap_new (pa_idxset_string_hash_func,
 		                         pa_idxset_string_compare_func);
 
 	return zs;
 }
 
-void pa_zoneset_done (struct userdata *u)
+void agl_zoneset_done (struct userdata *u)
 {
-	pa_zoneset *zs;
+	agl_zoneset *zs;
 	void *state;
 	agl_zone *zone;
 

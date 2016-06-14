@@ -31,7 +31,7 @@ struct agl_zone {
 	uint32_t    index;
 };
 
-pa_zoneset *pa_zoneset_init (struct userdata *);
-void pa_zoneset_done (struct userdata *);
+agl_zoneset *agl_zoneset_init (struct userdata *);
+void agl_zoneset_done (struct userdata *);
 
 #endif

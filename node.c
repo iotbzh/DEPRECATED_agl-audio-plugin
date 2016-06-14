@@ -23,13 +23,13 @@
 
 #include <pulsecore/idxset.h>
 
-pa_nodeset *pa_nodeset_init (struct userdata *u)
+agl_nodeset *agl_nodeset_init (struct userdata *u)
 {
-	pa_nodeset *ns;
+	agl_nodeset *ns;
 
 	pa_assert (u);
 
-	ns = pa_xnew0 (pa_nodeset, 1);
+	ns = pa_xnew0 (agl_nodeset, 1);
 	ns->nodes = pa_idxset_new (pa_idxset_trivial_hash_func,
 		                   pa_idxset_trivial_compare_func);
 	ns->roles = pa_hashmap_new (pa_idxset_string_hash_func,
@@ -39,10 +39,10 @@ pa_nodeset *pa_nodeset_init (struct userdata *u)
 	return ns;
 }
 
-void pa_nodeset_done(struct userdata *u)
+void agl_nodeset_done(struct userdata *u)
 {
-	pa_nodeset *ns;
-	pa_nodeset_map *role, *binary;
+	agl_nodeset *ns;
+	agl_nodeset_map *role, *binary;
 	void *state;
 	int i;
 
@@ -70,7 +70,7 @@ void pa_nodeset_done(struct userdata *u)
 
 agl_node *agl_node_create (struct userdata *u, agl_node *data)
 {
-	pa_nodeset *ns;
+	agl_nodeset *ns;
 	agl_node *node;
 
 	pa_assert (u);
@@ -136,7 +136,7 @@ agl_node *agl_node_get_from_data (struct userdata *u, agl_direction type, void *
 {
 	pa_sink_input_new_data *sinp_data;
 	pa_source_output_new_data *sout_data;
-	pa_nodeset *nodeset;
+	agl_nodeset *nodeset;
 	agl_node *node;
 	uint32_t index;
 
@@ -162,7 +162,7 @@ agl_node *agl_node_get_from_data (struct userdata *u, agl_direction type, void *
 
 agl_node *agl_node_get_from_client (struct userdata *u, pa_client *client)
 {
-	pa_nodeset *nodeset;
+	agl_nodeset *nodeset;
 	agl_node *node;
 	uint32_t index;
 

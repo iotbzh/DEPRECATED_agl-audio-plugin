@@ -41,20 +41,20 @@ typedef struct {
 	link_t      *links;
 } routes_t;
 
-struct pa_audiomgr {
+struct agl_audiomgr {
 	domain_t      domain;
 	pa_hashmap   *nodes;        /**< nodes ie. sinks and sources */
 	pa_hashmap   *conns;        /**< connections */
 	routes_t      defrts;       /**< default routes */
 };
 
-struct pa_audiomgr *pa_audiomgr_init (struct userdata *u)
+struct agl_audiomgr *agl_audiomgr_init (struct userdata *u)
 {
-	pa_audiomgr *am;
+	agl_audiomgr *am;
 
 	pa_assert (u);
 
-	am = pa_xnew0 (pa_audiomgr, 1);
+	am = pa_xnew0 (agl_audiomgr, 1);
 	am->domain.id = AM_ID_INVALID;
 	am->domain.state = DS_DOWN;
 	am->nodes = pa_hashmap_new (pa_idxset_trivial_hash_func,
@@ -64,9 +64,9 @@ struct pa_audiomgr *pa_audiomgr_init (struct userdata *u)
 	return am;
 }
 
-void pa_audiomgr_done (struct userdata *u)
+void agl_audiomgr_done (struct userdata *u)
 {
-	pa_audiomgr *am;
+	agl_audiomgr *am;
 
 	if (u && (am = u->audiomgr)) {
 		//if (u->routerif && am->domain.id != AM_ID_INVALID)

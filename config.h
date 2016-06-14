@@ -58,8 +58,8 @@ typedef struct {
 	int priority;
 } prior_def;
 
-const char *pa_config_file_get_path (const char *, const char *, char *, size_t);
-bool pa_config_parse_file (struct userdata *, const char *);
-bool pa_config_dofile (struct userdata *, const char *);
+const char *agl_config_file_get_path (const char *, const char *, char *, size_t);
+bool agl_config_parse_file (struct userdata *, const char *);
+bool agl_config_dofile (struct userdata *, const char *);
 
 #endif

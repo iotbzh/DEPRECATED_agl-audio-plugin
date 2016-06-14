@@ -38,18 +38,18 @@
 
 static uint32_t stamp;
 
-struct pa_null_sink {
+struct agl_null_sink {
 	char      *name;
 	uint32_t   module_index;
 	uint32_t   sink_index;
 };
 
-pa_null_sink *pa_utils_create_null_sink (struct userdata *u, const char *name)
+agl_null_sink *agl_utils_create_null_sink (struct userdata *u, const char *name)
 {
 	pa_core      *core;
 	pa_module    *module;
-	pa_null_sink *ns;
 	pa_sink      *s, *sink;
+	agl_null_sink *ns;
 	uint32_t      idx;
 	char          args[256];
 
@@ -59,7 +59,7 @@ pa_null_sink *pa_utils_create_null_sink (struct userdata *u, const char *name)
 	if (!name)
 		name = DEFAULT_NULL_SINK_NAME;	/* default is "null.agl" */
 
-	snprintf (args, sizeof(args), "sink_name=\"%s.%d\" channels=2", name, pa_utils_new_stamp ());
+	snprintf (args, sizeof(args), "sink_name=\"%s.%d\" channels=2", name, agl_utils_new_stamp ());
 	module = pa_module_load (core, "module-null-sink", args);
 	sink = NULL;
 
@@ -76,7 +76,7 @@ pa_null_sink *pa_utils_create_null_sink (struct userdata *u, const char *name)
 		}
 	}
 
-	ns = pa_xnew0 (pa_null_sink, 1);
+	ns = pa_xnew0 (agl_null_sink, 1);
 	ns->name = pa_xstrdup (name);
 	ns->module_index = module ? module->index : PA_IDXSET_INVALID;
 	ns->sink_index = sink ? sink->index : PA_IDXSET_INVALID;
@@ -84,7 +84,7 @@ pa_null_sink *pa_utils_create_null_sink (struct userdata *u, const char *name)
 	return ns;
 }
 
-void pa_utils_destroy_null_sink (struct userdata *u, pa_null_sink *ns)
+void agl_utils_destroy_null_sink (struct userdata *u, agl_null_sink *ns)
 {
 	pa_core      *core;
 	pa_module    *module;
@@ -100,7 +100,7 @@ void pa_utils_destroy_null_sink (struct userdata *u, pa_null_sink *ns)
 	}
 }
 
-pa_sink *pa_utils_get_null_sink (struct userdata *u, struct pa_null_sink *ns)
+pa_sink *agl_utils_get_null_sink (struct userdata *u, struct agl_null_sink *ns)
 {
 	pa_core *core;
 	pa_sink *sink;
@@ -111,28 +111,28 @@ pa_sink *pa_utils_get_null_sink (struct userdata *u, struct pa_null_sink *ns)
 	return pa_idxset_get_by_index (core->sinks, ns->sink_index);
 }
 
-pa_source *pa_utils_get_null_source (struct userdata *u, struct pa_null_sink *ns)
+pa_source *agl_utils_get_null_source (struct userdata *u, struct agl_null_sink *ns)
 {
 	pa_sink *sink;
 
-	sink = pa_utils_get_null_sink (u, ns);
+	sink = agl_utils_get_null_sink (u, ns);
 
 	return sink ? sink->monitor_source : NULL;
 }
 
 
-const char *pa_utils_get_card_name (pa_card *card)
+const char *agl_utils_get_card_name (pa_card *card)
 {
 	return (card && card->name) ? card->name : "<unknown>";
 }
 
-const char *pa_utils_get_card_bus (pa_card *card)
+const char *agl_utils_get_card_bus (pa_card *card)
 {
 	const char *bus = NULL;
 	const char *name;
 
 	if (card && !(bus = pa_proplist_gets (card->proplist,PA_PROP_DEVICE_BUS))) {
-		name = pa_utils_get_card_name (card);
+		name = agl_utils_get_card_name (card);
 		if (!strncmp (name, "alsa_card.", 10)) {
 			if (!strncmp (name + 10, "pci-", 4))
 				bus = "pci";
@@ -146,17 +146,17 @@ const char *pa_utils_get_card_bus (pa_card *card)
 	return (char *)bus;
 }
 
-const char *pa_utils_get_sink_name (pa_sink *sink)
+const char *agl_utils_get_sink_name (pa_sink *sink)
 {
 	return (sink && sink->name) ? sink->name : "<unknown>";
 }
 
-const char *pa_utils_get_source_name (pa_source *source)
+const char *agl_utils_get_source_name (pa_source *source)
 {
 	return (source && source->name) ? source->name : "<unknown>";
 }
 
-const char *pa_utils_get_sink_input_name (pa_sink_input *sinp)
+const char *agl_utils_get_sink_input_name (pa_sink_input *sinp)
 {
 	char *name = NULL;
 
@@ -171,7 +171,7 @@ const char *pa_utils_get_sink_input_name (pa_sink_input *sinp)
         return (const char *)name;
 }
 
-const char *pa_utils_get_source_output_name (pa_source_output *sout)
+const char *agl_utils_get_source_output_name (pa_source_output *sout)
 {
 	char *name = NULL;
 
@@ -186,7 +186,7 @@ const char *pa_utils_get_source_output_name (pa_source_output *sout)
         return (const char *)name;
 }
 
-pa_sink *pa_utils_get_primary_alsa_sink (struct userdata *u)
+pa_sink *agl_utils_get_primary_alsa_sink (struct userdata *u)
 {
 	pa_core *core;
 	pa_sink *sink;
@@ -203,24 +203,24 @@ pa_sink *pa_utils_get_primary_alsa_sink (struct userdata *u)
 	return NULL;
 }
 
-void pa_utils_init_stamp (void)
+void agl_utils_init_stamp (void)
 {
 	stamp = 0;
 }
 
-uint32_t pa_utils_new_stamp (void)
+uint32_t agl_utils_new_stamp (void)
 {
 	return ++stamp;
 }
 
-uint32_t pa_utils_get_stamp (void)
+uint32_t agl_utils_get_stamp (void)
 {
 	return stamp;
 }
 
 
 
-char *pa_utils_get_zone (pa_proplist *pl, pa_proplist *client_props)
+char *agl_utils_get_zone (pa_proplist *pl, pa_proplist *client_props)
 {
 	const char *zone;
 
@@ -237,7 +237,7 @@ char *pa_utils_get_zone (pa_proplist *pl, pa_proplist *client_props)
 	return (char *)zone;
 }
 
-bool pa_utils_set_stream_routing_properties (pa_proplist *pl, int styp, void *target)
+bool agl_utils_set_stream_routing_properties (pa_proplist *pl, int styp, void *target)
 {
 	const char *clnam;	/* will become "agl_player" e.g. */
 	char clid[32];		/* will become "1" e.g. */
@@ -261,7 +261,7 @@ bool pa_utils_set_stream_routing_properties (pa_proplist *pl, int styp, void *ta
 	return true;
 }
 
-bool pa_utils_unset_stream_routing_properties (pa_proplist *pl)
+bool agl_utils_unset_stream_routing_properties (pa_proplist *pl)
 {
 	pa_assert (pl);
 

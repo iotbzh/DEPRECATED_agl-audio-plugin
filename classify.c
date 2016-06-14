@@ -24,7 +24,7 @@
 
 #include "classify.h"
 
-agl_node_type pa_classify_guess_stream_node_type (struct userdata *u,  pa_proplist *pl)
+agl_node_type agl_classify_guess_stream_node_type (struct userdata *u,  pa_proplist *pl)
 {
 	agl_node_type type;
 	const char *role;

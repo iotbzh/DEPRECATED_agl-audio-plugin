@@ -29,19 +29,19 @@
 #define AM_ID_INVALID 65535		/* invalid state in several places */
 
 
-typedef struct pa_null_sink pa_null_sink;
-typedef struct pa_zoneset pa_zoneset;
-typedef struct pa_nodeset pa_nodeset;
-typedef struct pa_audiomgr pa_audiomgr;
-typedef struct pa_routerif pa_routerif;
-typedef struct pa_discover pa_discover;
-typedef struct pa_tracker pa_tracker;
-typedef struct pa_router pa_router;
+typedef struct agl_null_sink agl_null_sink;
+typedef struct agl_zoneset agl_zoneset;
+typedef struct agl_nodeset agl_nodeset;
+typedef struct agl_audiomgr agl_audiomgr;
+typedef struct agl_routerif agl_routerif;
+typedef struct agl_router agl_router;
+typedef struct agl_discover agl_discover;
+typedef struct agl_tracker agl_tracker;
 
-typedef struct pa_nodeset_resdef pa_nodeset_resdef;
-typedef struct pa_nodeset_map pa_nodeset_map;
-typedef struct pa_node_card pa_node_card;
-typedef struct pa_node_rset pa_node_rset;
+typedef struct agl_nodeset_resdef agl_nodeset_resdef;
+typedef struct agl_nodeset_map agl_nodeset_map;
+typedef struct agl_node_card agl_node_card;
+typedef struct agl_node_rset agl_node_rset;
 
 typedef struct pa_card_hooks pa_card_hooks;
 typedef struct pa_port_hooks pa_port_hooks;
@@ -65,13 +65,13 @@ struct userdata {
 	pa_core       *core;
 	pa_module     *module;
 	char          *nsnam;
-	pa_zoneset    *zoneset;
-	pa_nodeset    *nodeset;
-	pa_audiomgr   *audiomgr;
-	pa_routerif   *routerif;
-	pa_router     *router;
-	pa_discover   *discover;
-	pa_tracker    *tracker;
+	agl_zoneset    *zoneset;
+	agl_nodeset    *nodeset;
+	agl_audiomgr   *audiomgr;
+	agl_routerif   *routerif;
+	agl_router     *router;
+	agl_discover   *discover;
+	agl_tracker    *tracker;
 	pa_agl_state state;
 };
 

@@ -21,7 +21,7 @@
  */
 #include "config.h"
 
-const char *pa_config_file_get_path (const char *dir, const char *file, char *buf, size_t len)
+const char *agl_config_file_get_path (const char *dir, const char *file, char *buf, size_t len)
 {
 	pa_assert (file);
 	pa_assert (buf);
@@ -32,7 +32,7 @@ const char *pa_config_file_get_path (const char *dir, const char *file, char *bu
 	return buf;
 }
 
-bool pa_config_parse_file (struct userdata *u, const char *path)
+bool agl_config_parse_file (struct userdata *u, const char *path)
 {
 	bool success;
 
@@ -42,7 +42,7 @@ bool pa_config_parse_file (struct userdata *u, const char *path)
 		return false;
 	else {
 		pa_log_info ("parsing configuration file '%s'", path);
-		success = pa_config_dofile (u, path);
+		success = agl_config_dofile (u, path);
 	}
 
 	if (!success) {
@@ -53,7 +53,7 @@ bool pa_config_parse_file (struct userdata *u, const char *path)
 	return success;
 }
 
-bool pa_config_dofile (struct userdata *u, const char *path)
+bool agl_config_dofile (struct userdata *u, const char *path)
 {
 	/* TODO */
 	return false;

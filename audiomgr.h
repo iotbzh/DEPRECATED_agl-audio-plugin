@@ -24,7 +24,7 @@
 
 #include "userdata.h"
 
-pa_audiomgr *pa_audiomgr_init (struct userdata *);
-void pa_audiomgr_done (struct userdata *);
+agl_audiomgr *agl_audiomgr_init (struct userdata *);
+void agl_audiomgr_done (struct userdata *);
 
 #endif

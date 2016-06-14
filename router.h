@@ -41,17 +41,17 @@ struct agl_rtgroup {
 typedef struct {
 	pa_hashmap *input;
 	pa_hashmap *output;
-} pa_rtgroup_hash;
+} agl_rtgroup_hash;
 
 typedef struct {
 	agl_rtgroup **input[AGL_ZONE_MAX];
 	agl_rtgroup **output[AGL_ZONE_MAX];
-} pa_rtgroup_classmap;
+} agl_rtgroup_classmap;
 
-struct pa_router {
-	pa_rtgroup_hash rtgroups;
+struct agl_router {
+	agl_rtgroup_hash rtgroups;
 	size_t maplen;		      /**< length of the class */
-	pa_rtgroup_classmap classmap; /**< map device node types to rtgroups */
+	agl_rtgroup_classmap classmap; /**< map device node types to rtgroups */
 	int *priormap;                /**< stream node priorities */
 	agl_dlist nodlist;            /**< priorized list of the stream nodes
                                         (entry in node: rtprilist) */
@@ -67,8 +67,8 @@ struct agl_connection {
 	uint32_t stream;   /**< index of the sink-input to be routed */
 };
 
-pa_router *pa_router_init (struct userdata *);
-void pa_router_done (struct userdata *);
+agl_router *agl_router_init (struct userdata *);
+void agl_router_done (struct userdata *);
 
 bool agl_router_default_accept (struct userdata *, agl_rtgroup *, agl_node *);
 bool agl_router_phone_accept (struct userdata *, agl_rtgroup *, agl_node *);

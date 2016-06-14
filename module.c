@@ -34,16 +34,16 @@ $ pactl load-module mypamodule
 #include <pulsecore/modargs.h>		/* for "pa_modargs" */
 
 #include "userdata.h"			/* for "struct userdata" */
-#include "config.h"			/* for "pa_config_...()" */
-#include "utils.h"			/* for "struct pa_null_sink", "pa_utils_create_null_sink()"... */
-#include "loopback.h"			/* for "struct pa_loopback/loopnode" */
-#include "zone.h"			/* for "struct pa_zoneset" */
-#include "node.h"			/* for "struct pa_nodeset" */
-#include "audiomgr.h"			/* for "struct pa_audiomgr" */
-#include "routerif.h"			/* for "struct pa_routerif" */
-#include "discover.h"			/* for "struct pa_discover" */
-#include "tracker.h"			/* for "struct pa_tracker" */
-#include "router.h"			/* for "struct pa_router" */
+#include "config.h"			/* for "agl_config_...()" */
+#include "utils.h"			/* for "struct agl_null_sink", "agl_utils_create_null_sink()"... */
+#include "loopback.h"			/* for "struct agl_loopback/loopnode" */
+#include "zone.h"			/* for "struct agl_zoneset" */
+#include "node.h"			/* for "struct agl_nodeset" */
+#include "audiomgr.h"			/* for "struct agl_audiomgr" */
+#include "routerif.h"			/* for "struct agl_routerif" */
+#include "router.h"			/* for "struct agl_router" */
+#include "discover.h"			/* for "struct agl_discover" */
+#include "tracker.h"			/* for "struct agl_tracker" */
 
 #ifndef DEFAULT_CONFIG_DIR
 #define DEFAULT_CONFIG_DIR "/etc/pulse"
@@ -100,7 +100,9 @@ int pa__init (pa_module *m)
 	pa_log ("cfgdir : %s", cfgdir);
 	pa_log ("cfgfile : %s", cfgfile);
 
-	pa_utils_init_stamp ();
+	 /* initialize "stamp" incremental integer to 0 */
+
+	agl_utils_init_stamp ();
 
 	 /* initialize userdata */
 
@@ -108,28 +110,28 @@ int pa__init (pa_module *m)
 	u->core      = m->core;
 	u->module    = m;
 	u->nsnam     = pa_xstrdup (nsnam) ;
-	u->zoneset   = pa_zoneset_init (u);
-	u->nodeset   = pa_nodeset_init (u);
-	u->audiomgr  = pa_audiomgr_init (u);
-	u->routerif  = pa_routerif_init (u, amsocktype, amaddr, amport);
-	u->router    = pa_router_init (u);
-	u->discover  = pa_discover_init (u);
-	u->tracker   = pa_tracker_init (u);
+	u->zoneset   = agl_zoneset_init (u);
+	u->nodeset   = agl_nodeset_init (u);
+	u->audiomgr  = agl_audiomgr_init (u);
+	u->routerif  = agl_routerif_init (u, amsocktype, amaddr, amport);
+	u->router    = agl_router_init (u);
+	u->discover  = agl_discover_init (u);
+	u->tracker   = agl_tracker_init (u);
 
 	m->userdata = u;
 
 	 /* apply the config file */
 
-	cfgpath = pa_config_file_get_path (cfgdir, cfgfile, buf, sizeof(buf));
-	pa_config_parse_file (u, cfgpath);
+	cfgpath = agl_config_file_get_path (cfgdir, cfgfile, buf, sizeof(buf));
+	agl_config_parse_file (u, cfgpath);
 
 	 /* really initialize the module's core logic */
 
-	pa_tracker_synchronize (u);
+	agl_tracker_synchronize (u);
 
 	 /* end */
 
-	pa_modargs_free(ma);
+	pa_modargs_free (ma);
 
 	return 0;
 }
@@ -145,12 +147,13 @@ void pa__done (pa_module *m)
 	pa_assert (m);
 
 	if (u = m->userdata) {
-		pa_tracker_done (u);
-		pa_discover_done (u);
-		pa_routerif_done (u);
-		pa_audiomgr_done (u);
-		pa_nodeset_done (u);
-		pa_zoneset_done (u);
+		agl_tracker_done (u);
+		agl_discover_done (u);
+		agl_router_done (u);
+		agl_routerif_done (u);
+		agl_audiomgr_done (u);
+		agl_nodeset_done (u);
+		agl_zoneset_done (u);
 		pa_xfree (u->nsnam);
 		pa_xfree (u);
 	}	

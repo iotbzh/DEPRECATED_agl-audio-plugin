@@ -42,9 +42,9 @@ static const char *node_key (struct userdata *, agl_direction,
 			     void *, pa_device_port *, char *, size_t);
 static agl_node *create_node (struct userdata *, agl_node *, bool *);
 
-struct pa_discover *pa_discover_init (struct userdata *u)
+struct agl_discover *agl_discover_init (struct userdata *u)
 {
-	pa_discover *discover = pa_xnew0 (pa_discover, 1);
+	agl_discover *discover = pa_xnew0 (agl_discover, 1);
 	discover->chmin = 1;
 	discover->chmax = 2;
 	discover->selected = true;
@@ -56,9 +56,9 @@ struct pa_discover *pa_discover_init (struct userdata *u)
 	return discover;
 }
 
-void pa_discover_done (struct userdata *u)
+void agl_discover_done (struct userdata *u)
 {
-	pa_discover *discover;
+	agl_discover *discover;
 	void *state;
 	agl_node *node;
 
@@ -73,27 +73,27 @@ void pa_discover_done (struct userdata *u)
 	}
 }
 
-void pa_discover_add_card (struct userdata *u, pa_card *card)
+void agl_discover_add_card (struct userdata *u, pa_card *card)
 {
 	const char *bus;
 
 	pa_assert(u);
 	pa_assert(card);
 
-	if (!(bus = pa_utils_get_card_bus (card))) {
+	if (!(bus = agl_utils_get_card_bus (card))) {
 		pa_log_debug ("ignoring card '%s' due to lack of '%s' property",
-			      pa_utils_get_card_name (card), PA_PROP_DEVICE_BUS);
+			      agl_utils_get_card_name (card), PA_PROP_DEVICE_BUS);
 		return;
 	}
 
 	if (pa_streq(bus, "pci") || pa_streq(bus, "usb") || pa_streq(bus, "platform")) {
 		pa_log_debug ("adding card '%s' thanks to its '%s' property",
-			      pa_utils_get_card_name (card), PA_PROP_DEVICE_BUS);
+			      agl_utils_get_card_name (card), PA_PROP_DEVICE_BUS);
 		pa_log_debug ("card  type is '%s'", bus);
 		handle_alsa_card (u, card);
 		return;
 	}
-/* this never happens, because "pa_utils_get_card_bus()" never returns "bluetooth",
+/* this never happens, because "agl_utils_get_card_bus()" never returns "bluetooth",
  * but have this here as a reminder */
 #if 0
 	else if (pa_streq(bus, "bluetooth")) {
@@ -103,13 +103,13 @@ void pa_discover_add_card (struct userdata *u, pa_card *card)
 #endif
 
 	pa_log_debug ("ignoring card '%s' due to unsupported bus type '%s'",
-		      pa_utils_get_card_name (card), bus);
+		      agl_utils_get_card_name (card), bus);
 }
 
-void pa_discover_remove_card (struct userdata *u, pa_card *card)
+void agl_discover_remove_card (struct userdata *u, pa_card *card)
 {
 	const char  *bus;
-	pa_discover *discover;
+	agl_discover *discover;
 	agl_node    *node;
 	void        *state;
 
@@ -117,7 +117,7 @@ void pa_discover_remove_card (struct userdata *u, pa_card *card)
 	pa_assert (card);
 	pa_assert_se (discover = u->discover);
 
-	if (!(bus = pa_utils_get_card_bus(card)))
+	if (!(bus = agl_utils_get_card_bus(card)))
 		bus = "<unknown>";
 
 	/*PA_HASHMAP_FOREACH(node, discover->nodes.byname, state) {
@@ -130,7 +130,7 @@ void pa_discover_remove_card (struct userdata *u, pa_card *card)
 		destroy_node(u, node);
 	}*/
 
-  /* this never happens, because "pa_utils_get_card_bus()" never returns "bluetooth",
+  /* this never happens, because "agl_utils_get_card_bus()" never returns "bluetooth",
   * but have this here as a reminder */
 #if 0
     if (pa_streq(bus, "bluetooth"))
@@ -138,12 +138,12 @@ void pa_discover_remove_card (struct userdata *u, pa_card *card)
 #endif
 }
 
-void pa_discover_add_sink (struct userdata *u, pa_sink *sink, bool route)
+void agl_discover_add_sink (struct userdata *u, pa_sink *sink, bool route)
 {
 	pa_core *core;
-	pa_discover *discover;
 	pa_module *module;
 	pa_card *card;
+	agl_discover *discover;
 	char kbf[256];
 	const char *key;
 	agl_node *node;
@@ -162,7 +162,7 @@ void pa_discover_add_sink (struct userdata *u, pa_sink *sink, bool route)
 		key = node_key (u, agl_output, sink, NULL, kbf, sizeof(kbf));
 		if (!key) return;
 		pa_log_debug ("Sink key: %s", key);
-		node = pa_discover_find_node_by_key (u, key);
+		node = agl_discover_find_node_by_key (u, key);
 		if (!node) {	/* ALWAYS NULL, IF CALL "handle_card_ports" FROM "handle_alsa_card" !!! */
 			if (u->state.profile)
 				pa_log_debug ("can't find node for sink (key '%s')", key);
@@ -176,12 +176,12 @@ void pa_discover_add_sink (struct userdata *u, pa_sink *sink, bool route)
 			     node->paname, node->key);
         	node->paidx = sink->index;
 		node->available = true;
-		pa_discover_add_node_to_ptr_hash (u, sink, node);
+		agl_discover_add_node_to_ptr_hash (u, sink, node);
 
 #if 0
 		/* loopback part : it is a device node, use "module-loopback" to make its */
 		if (node->implement == agl_device) {
-			null_source = pa_utils_get_null_source (u);
+			null_source = agl_utils_get_null_source (u);
 			if (!null_source) {
 				pa_log ("Can't load loopback module: no initial null source");
 				return;
@@ -201,14 +201,14 @@ static void handle_alsa_card (struct userdata *u, pa_card *card)
 	const char *udd;	/* managed by udev ("1" = yes) */
 
 	memset (&data, 0, sizeof(data));
-	data.zone = pa_utils_get_zone (card->proplist, NULL);
+	data.zone = agl_utils_get_zone (card->proplist, NULL);
 	data.visible = true;
 	data.amid = AM_ID_INVALID;
 	data.implement = agl_device;		/* this node is a physical device */
 	data.paidx = PA_IDXSET_INVALID;
-	data.stamp = pa_utils_get_stamp ();	/* each time incremented by one */
+	data.stamp = agl_utils_get_stamp ();	/* each time incremented by one */
 
-	cnam = pa_utils_get_card_name (card);	/* PulseAudio name */
+	cnam = agl_utils_get_card_name (card);	/* PulseAudio name */
 	cid = cnam + 10;			/* PulseAudio short name, with "alsa_card." prefix removed */
 	alsanam = pa_proplist_gets (card->proplist, "alsa.card_name"); /* ALSA name */
 	udd = pa_proplist_gets (card->proplist, "module-udev-detect.discovered");
@@ -234,7 +234,7 @@ static void handle_alsa_card (struct userdata *u, pa_card *card)
                                               ;
 static void handle_alsa_card_sinks_and_sources (struct userdata *u, pa_card *card, agl_node *data, const char *cardid)
 {
-	pa_discover *discover; /* discovery restrictions (max channels...) */
+	agl_discover *discover; /* discovery restrictions (max channels...) */
 	pa_card_profile *prof;
 	void *state;
 	char *sinks[MAX_CARD_TARGET+1];	  /* discovered sinks array */
@@ -384,7 +384,7 @@ static void handle_card_ports (struct userdata *u, agl_node *data, pa_card *card
 				printf ("Key : %s\n", key);
 
 				 /* this is needed to fill the "port->type" field */
-				//pa_classify_node_by_card (data, card, prof, port);
+				//agl_classify_node_by_card (data, card, prof, port);
 
 				 /* this is needed to complete the "pa_discover_add_sink" first pass */
 				node = create_node (u, data, &created);
@@ -414,14 +414,14 @@ static const char *node_key (struct userdata *u, agl_direction direction,
 	if (direction == agl_output) {
 		pa_sink *sink = data;
 		type = pa_xstrdup ("sink");
-		name = pa_utils_get_sink_name (sink);
+		name = agl_utils_get_sink_name (sink);
 		card = sink->card;
 		if (!port)
 			port = sink->active_port;
 	} else {
 		pa_source *source = data;
 		type = pa_xstrdup ("source");
-		name = pa_utils_get_source_name (source);
+		name = agl_utils_get_source_name (source);
 		card = source->card;
 		if (!port)
 			port = source->active_port;
@@ -443,9 +443,9 @@ static const char *node_key (struct userdata *u, agl_direction direction,
 		profile_name = u->state.profile;
 	}
 
-	if (!(bus = pa_utils_get_card_bus (card))) {
+	if (!(bus = agl_utils_get_card_bus (card))) {
 		pa_log_debug ("ignoring card '%s' due to lack of '%s' property",
-			      pa_utils_get_card_name (card), PA_PROP_DEVICE_BUS);
+			      agl_utils_get_card_name (card), PA_PROP_DEVICE_BUS);
 		return NULL;
 	}
 
@@ -464,9 +464,9 @@ static const char *node_key (struct userdata *u, agl_direction direction,
 	return (const char *)key;
 }
 
-agl_node *pa_discover_find_node_by_key (struct userdata *u, const char *key)
+agl_node *agl_discover_find_node_by_key (struct userdata *u, const char *key)
 {
-	pa_discover *discover;
+	agl_discover *discover;
 	agl_node *node;
 
 	pa_assert (u);
@@ -480,9 +480,9 @@ agl_node *pa_discover_find_node_by_key (struct userdata *u, const char *key)
 	return node;
 }
 
-void pa_discover_add_node_to_ptr_hash (struct userdata *u, void *ptr, agl_node *node)
+void agl_discover_add_node_to_ptr_hash (struct userdata *u, void *ptr, agl_node *node)
 {
-	pa_discover *discover;
+	agl_discover *discover;
 
 	pa_assert (u);
 	pa_assert (ptr);
@@ -494,7 +494,7 @@ void pa_discover_add_node_to_ptr_hash (struct userdata *u, void *ptr, agl_node *
 
 static agl_node *create_node (struct userdata *u, agl_node *data, bool *created_ret)
 {
-	pa_discover *discover;
+	agl_discover *discover;
 	agl_node *node;
 	bool created;
 
@@ -526,14 +526,14 @@ static agl_node *create_node (struct userdata *u, agl_node *data, bool *created_
 	return node;
 }
 
-void pa_discover_add_source (struct userdata *u, pa_source *source)
+void agl_discover_add_source (struct userdata *u, pa_source *source)
 {
-	static pa_nodeset_resdef def_resdef = {0, {0, 0}};
+	static agl_nodeset_resdef def_resdef = {0, {0, 0}};
 
 	pa_core *core;
-	pa_discover *discover;
 	pa_module *module;
 	pa_card *card;
+	agl_discover *discover;
 	const char *key;
 	char kbf[256];
 	agl_node *node;
@@ -551,7 +551,7 @@ void pa_discover_add_source (struct userdata *u, pa_source *source)
 		key = node_key (u, agl_input, source, NULL, kbf, sizeof(kbf));
 		if (!key) return;
 		pa_log_debug ("Source key: %s", key);
-		node = pa_discover_find_node_by_key (u, key);
+		node = agl_discover_find_node_by_key (u, key);
 		if (!node) {	/* VERIFY IF THIS WORKS */
 			if (u->state.profile)
 				pa_log_debug ("can't find node for source (key '%s')", key);
@@ -565,17 +565,17 @@ void pa_discover_add_source (struct userdata *u, pa_source *source)
 			     node->paname, node->key);
         	node->paidx = source->index;
 		node->available = true;
-		pa_discover_add_node_to_ptr_hash (u, source, node);
+		agl_discover_add_node_to_ptr_hash (u, source, node);
 	}
 }
 
-bool pa_discover_preroute_sink_input(struct userdata *u, pa_sink_input_new_data *data)
+bool agl_discover_preroute_sink_input(struct userdata *u, pa_sink_input_new_data *data)
 {
 	pa_core *core;
 	pa_sink *sink;
 	pa_source *source;
-	pa_discover *discover;
-	pa_nodeset *nodeset;
+	agl_discover *discover;
+	agl_nodeset *nodeset;
 	pa_proplist *pl;
 	agl_node *node;
 
@@ -598,7 +598,7 @@ bool pa_discover_preroute_sink_input(struct userdata *u, pa_sink_input_new_data 
 		node = agl_node_create (u, NULL);
 		node->direction = agl_input;
 		node->implement = agl_stream;
-		node->type = pa_classify_guess_stream_node_type (u, pl);
+		node->type = agl_classify_guess_stream_node_type (u, pl);
 		node->visible = true;
 		node->available = true;
 		node->ignore = true; /* gets ignored initially */
@@ -610,12 +610,12 @@ bool pa_discover_preroute_sink_input(struct userdata *u, pa_sink_input_new_data 
 
 	 /* create NULL sink */
 	if (!node->nullsink)
-		node->nullsink = pa_utils_create_null_sink (u, u->nsnam);
+		node->nullsink = agl_utils_create_null_sink (u, u->nsnam);
 	if (!node->nullsink)
 		return false;
 
 	 /* redirect sink input to NULL sink */
-	sink = pa_utils_get_null_sink (u, node->nullsink);
+	sink = agl_utils_get_null_sink (u, node->nullsink);
 
 	if (pa_sink_input_new_data_set_sink (data, sink, false))
 		pa_log_debug ("set sink %u for new sink-input", sink->index);
@@ -625,11 +625,11 @@ bool pa_discover_preroute_sink_input(struct userdata *u, pa_sink_input_new_data 
 	return true;
 }
 
-void pa_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
+void agl_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
 {
 	pa_core *core;
-	pa_discover *discover;
 	pa_proplist *pl, *client_proplist;
+	agl_discover *discover;
 	const char *media;
 	const char *name;
 	const char *role;
@@ -651,7 +651,7 @@ void pa_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
 		/* return; */
 	}
 
-	name = pa_utils_get_sink_input_name (sinp);
+	name = agl_utils_get_sink_input_name (sinp);
 	client_proplist = sinp->client ? sinp->client->proplist : NULL;
 
 	pa_log_debug ("registering input stream '%s'", name);
@@ -668,7 +668,7 @@ void pa_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
 	 *	#define PA_PROP_ROUTING_CLASS_NAME "routing.class.name"
 	 *	#define PA_PROP_ROUTING_CLASS_ID   "routing.class.id"
 	 *	#define PA_PROP_ROUTING_METHOD     "routing.method" */
-	pa_utils_set_stream_routing_properties (pl, type, NULL);
+	agl_utils_set_stream_routing_properties (pl, type, NULL);
 
 	/* we now create a new node for this sink */
 	memset (&node_data, 0, sizeof(node_data));
@@ -677,7 +677,7 @@ void pa_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
 	node_data.implement = agl_stream;
 	node_data.channels  = sinp->channel_map.channels;
 	node_data.type      = type;
-	node_data.zone      = pa_utils_get_zone (sinp->proplist, client_proplist);
+	node_data.zone      = agl_utils_get_zone (sinp->proplist, client_proplist);
 	node_data.visible   = true;
 	node_data.available = true;
 	node_data.amname    = pa_proplist_gets (pl, "resource.set.appid");
@@ -693,7 +693,7 @@ void pa_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
 
 	node = create_node (u, &node_data, NULL);
 	pa_assert (node);
-	pa_discover_add_node_to_ptr_hash (u, sinp, node);
+	agl_discover_add_node_to_ptr_hash (u, sinp, node);
 /*
 	if (sink && target) {
 		pa_log_debug ("move stream to sink %u (%s)", sink->index, sink->name);
@@ -705,11 +705,11 @@ void pa_discover_register_sink_input (struct userdata *u, pa_sink_input *sinp)
 	}*/
 }
 
-void pa_discover_register_source_output (struct userdata *u, pa_source_output *sout)
+void agl_discover_register_source_output (struct userdata *u, pa_source_output *sout)
 {
 	pa_core *core;
-	pa_discover *discover;
 	pa_proplist *pl, *client_proplist;
+	agl_discover *discover;
 	const char *media;
 	const char *name;
 	const char *role;
@@ -731,17 +731,17 @@ void pa_discover_register_source_output (struct userdata *u, pa_source_output *s
 		/* return; */
 	}
 
-	 /* TODO : contrary to "pa_discover_register_sink_input", this function is always called
+	 /* TODO : contrary to "agl_discover_register_sink_input", this function is always called
 	  * even if we do not find PA_PROP_MEDIA_NAME (see above). */
-	//pa_utils_set_stream_routing_properties (pl, type, NULL);
+	//agl_utils_set_stream_routing_properties (pl, type, NULL);
 
-	name = pa_utils_get_source_output_name (sout);
+	name = agl_utils_get_source_output_name (sout);
 	client_proplist = sout->client ? sout->client->proplist : NULL;
 
 	pa_log_debug("registering output stream '%s'", name);
 }
 
-void pa_discover_add_sink_input (struct userdata *u, pa_sink_input *sinp) 
+void agl_discover_add_sink_input (struct userdata *u, pa_sink_input *sinp) 
 {
 	pa_core *core;
 	agl_node *node;
@@ -761,7 +761,7 @@ void pa_discover_add_sink_input (struct userdata *u, pa_sink_input *sinp)
 	agl_router_register_node (u, node);
 }
 
-void pa_discover_remove_sink_input (struct userdata *u, pa_sink_input *sinp)
+void agl_discover_remove_sink_input (struct userdata *u, pa_sink_input *sinp)
 {
 	pa_core *core;
 	agl_node *node;

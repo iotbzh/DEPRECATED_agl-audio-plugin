@@ -26,28 +26,28 @@
 
 #include "userdata.h"
 
-struct pa_null_sink;
+struct agl_null_sink;
 
-struct pa_null_sink *pa_utils_create_null_sink (struct userdata *, const char *);
-void pa_utils_destroy_null_sink (struct userdata *, struct pa_null_sink *);
-pa_sink *pa_utils_get_null_sink (struct userdata *, struct pa_null_sink *);
-pa_source *pa_utils_get_null_source (struct userdata *, struct pa_null_sink *);
+struct agl_null_sink *agl_utils_create_null_sink (struct userdata *, const char *);
+void agl_utils_destroy_null_sink (struct userdata *, struct agl_null_sink *);
+pa_sink *agl_utils_get_null_sink (struct userdata *, struct agl_null_sink *);
+pa_source *agl_utils_get_null_source (struct userdata *, struct agl_null_sink *);
 
  /* general helper functions */ 
-const char *pa_utils_get_card_name (pa_card *);
-const char *pa_utils_get_card_bus (pa_card *);
-const char *pa_utils_get_sink_name (pa_sink *);
-const char *pa_utils_get_source_name (pa_source *);
-const char *pa_utils_get_sink_input_name (pa_sink_input *);
-const char *pa_utils_get_source_output_name (pa_source_output *);
-pa_sink *pa_utils_get_primary_alsa_sink (struct userdata *);
-void pa_utils_init_stamp (void);
-uint32_t pa_utils_new_stamp (void);
-uint32_t pa_utils_get_stamp (void);
+const char *agl_utils_get_card_name (pa_card *);
+const char *agl_utils_get_card_bus (pa_card *);
+const char *agl_utils_get_sink_name (pa_sink *);
+const char *agl_utils_get_source_name (pa_source *);
+const char *agl_utils_get_sink_input_name (pa_sink_input *);
+const char *agl_utils_get_source_output_name (pa_source_output *);
+pa_sink *agl_utils_get_primary_alsa_sink (struct userdata *);
+void agl_utils_init_stamp (void);
+uint32_t agl_utils_new_stamp (void);
+uint32_t agl_utils_get_stamp (void);
 
  /* AM-oriented helper functions */
-char *pa_utils_get_zone (pa_proplist *, pa_proplist *);
-bool pa_utils_set_stream_routing_properties (pa_proplist *, int, void *);
-bool pa_utils_unset_stream_routing_properties (pa_proplist *);
+char *agl_utils_get_zone (pa_proplist *, pa_proplist *);
+bool agl_utils_set_stream_routing_properties (pa_proplist *, int, void *);
+bool agl_utils_unset_stream_routing_properties (pa_proplist *);
 
 #endif

@@ -58,7 +58,7 @@ struct pa_source_output_hooks {
     pa_hook_slot    *unlink;
 };
 
-struct pa_tracker {
+struct agl_tracker {
     pa_card_hooks           card;
     pa_port_hooks           port;
     pa_sink_hooks           sink;
@@ -91,11 +91,11 @@ static pa_hook_result_t source_output_put (void *, void *, void *);
 static pa_hook_result_t source_output_unlink (void *, void *, void *);
 
 
-pa_tracker *pa_tracker_init (struct userdata *u)
+agl_tracker *agl_tracker_init (struct userdata *u)
 {
 	pa_core *core;
 	pa_hook *hooks;
-	pa_tracker *tracker;
+	agl_tracker *tracker;
 	pa_card_hooks *card;
 	pa_port_hooks *port;
 	pa_sink_hooks *sink;
@@ -107,7 +107,7 @@ pa_tracker *pa_tracker_init (struct userdata *u)
 	pa_assert_se (core = u->core);
 	pa_assert_se (hooks = core->hooks);
 
-	tracker = pa_xnew0 (pa_tracker, 1);
+	tracker = pa_xnew0 (agl_tracker, 1);
 	card = &tracker->card;
 	port = &tracker->port;
 	sink = &tracker->sink;
@@ -162,9 +162,9 @@ pa_tracker *pa_tracker_init (struct userdata *u)
 	return tracker;	
 }
 
-void pa_tracker_done (struct userdata *u)
+void agl_tracker_done (struct userdata *u)
 {
-	pa_tracker *tracker;	
+	agl_tracker *tracker;	
 	pa_card_hooks *card;
 	pa_port_hooks *port;
 	pa_sink_hooks *sink;
@@ -203,7 +203,7 @@ void pa_tracker_done (struct userdata *u)
 }
 
  /* main logic initialization function */
-void pa_tracker_synchronize (struct userdata *u)
+void agl_tracker_synchronize (struct userdata *u)
 {
 	pa_core *core;
 	pa_card *card;
@@ -216,28 +216,25 @@ void pa_tracker_synchronize (struct userdata *u)
 	pa_assert (u);
 	pa_assert_se (core = u->core);
 
-	 /* initialize "stamp" incremental card property to 0 */
-	pa_utils_init_stamp ();
-
 	 /* discover.c : add each valid USB/PCI/Platform ALSA sound card */
 	PA_IDXSET_FOREACH (card, core->cards, index) {
-        	pa_discover_add_card (u, card);
+        	agl_discover_add_card (u, card);
 	}
 
 	PA_IDXSET_FOREACH (sink, core->sinks, index) {
-		pa_discover_add_sink (u, sink, false);
+		agl_discover_add_sink (u, sink, false);
 	}
 
 	PA_IDXSET_FOREACH (source, core->sources, index) {
-		pa_discover_add_source (u, source);
+		agl_discover_add_source (u, source);
 	}
 
 	PA_IDXSET_FOREACH(sinp, core->sink_inputs, index) {
-		pa_discover_register_sink_input (u, sinp);
+		agl_discover_register_sink_input (u, sinp);
 	}
 
 	PA_IDXSET_FOREACH(sout, core->source_outputs, index) {
-		pa_discover_register_source_output (u, sout);
+		agl_discover_register_source_output (u, sout);
 	}
 
 	agl_router_make_routing (u);
@@ -324,7 +321,7 @@ static pa_hook_result_t sink_input_new (void *hook_data,
 	struct userdata *u = (struct userdata *)slot_data;
 	bool success;
 
-	success = pa_discover_preroute_sink_input (u, data);
+	success = agl_discover_preroute_sink_input (u, data);
 
 	return success ? PA_HOOK_OK : PA_HOOK_CANCEL;
 }
@@ -337,7 +334,7 @@ static pa_hook_result_t sink_input_put (void *hook_data,
 	pa_sink_input *sinp = (pa_sink_input *)call_data;
 	struct userdata *u = (struct userdata *)slot_data;
 
-	pa_discover_add_sink_input (u, sinp);
+	agl_discover_add_sink_input (u, sinp);
 
 	return PA_HOOK_OK;
 }
@@ -350,7 +347,7 @@ static pa_hook_result_t sink_input_unlink (void *hook_data,
 	pa_sink_input *sinp = (pa_sink_input *)call_data;
 	struct userdata *u = (struct userdata *)slot_data;
 
-	pa_discover_remove_sink_input (u, sinp);
+	agl_discover_remove_sink_input (u, sinp);
 
 	return PA_HOOK_OK;
 }

@@ -31,14 +31,14 @@
 
 #define APCLASS_DIM  (agl_application_class_end - agl_application_class_begin + 1)
 
-struct pa_nodeset {
+struct agl_nodeset {
 	pa_idxset  *nodes;
 	pa_hashmap *roles;
 	pa_hashmap *binaries;
 	const char *class_name[APCLASS_DIM]; /* as much elements as app.classes (see in "userdata.h") */
 };
 
-struct pa_nodeset_resdef {
+struct agl_nodeset_resdef {
 	uint32_t priority;
 	struct {
 		uint32_t rset;
@@ -46,19 +46,19 @@ struct pa_nodeset_resdef {
 	} flags;
 };
 
-struct pa_nodeset_map {
+struct agl_nodeset_map {
 	const char *name;
 	agl_node_type type;
 	const char *role;
-	pa_nodeset_resdef *resdef;
+	agl_nodeset_resdef *resdef;
 };
 
-struct pa_node_card {
+struct agl_node_card {
 	uint32_t  index;
 	char     *profile;
 };
 
-struct pa_node_rset {
+struct agl_node_rset {
 	char     *id;               /**< resource set id, if any */
 	bool      grant;            /**< permission to play/render etc */
 };
@@ -69,8 +69,8 @@ struct agl_node {
 	agl_direction  direction; /**< agl_input | agl_output */
 	agl_implement  implement; /**< agl_device | agl_stream */
 	pa_client     *client;    /**< matching client pointer (for agl_input nodes only) */
-	pa_null_sink  *nullsink;  /**< associated null sink (for agl_input nodes only) */
-	pa_loopnode   *loopnode;  /**< associated loopback */
+	agl_null_sink  *nullsink; /**< associated null sink (for agl_input nodes only) */
+	agl_loopnode   *loopnode; /**< associated loopback */
 	uint32_t       channels;  /**< number of channels (eg. 1=mono, 2=stereo) */
 	agl_location   location;  /**< mir_internal | mir_external */
 	agl_privacy    privacy;   /**< mir_public | mir_private */
@@ -85,22 +85,21 @@ struct agl_node {
 	uint16_t       amid;      /**< handle to audiomanager, if any */
 	const char    *paname;    /**< sink|source|sink_input|source_output name */
 	uint32_t       paidx;     /**< sink|source|sink_input|source_output index*/
-	pa_node_card   pacard;    /**< pulse card related data, if any  */
+	agl_node_card   pacard;   /**< pulse card related data, if any  */
 	const char    *paport;    /**< sink or source port if applies */
 	/*pa_muxnode    *mux;*/       /**< for multiplexable input streams only */
-    	/*pa_loopnode   *loop;*/      /**< for looped back sources only */
 	agl_dlist      rtentries; /**< in device nodes: listhead of nodchain */
 	agl_dlist      rtprilist; /**< in stream nodes: priority link (head is in
                                                                    pa_router)*/
 	agl_dlist      constrains; /**< listhead of constrains */
 	/*mir_vlim       vlim;*/      /**< volume limit */
-	pa_node_rset   rset;      /**< resource set info if applies */
+	agl_node_rset   rset;      /**< resource set info if applies */
 	uint32_t       stamp;
 	/*scripting_node *scripting;*/ /** scripting data, if any */
 };
 
-pa_nodeset *pa_nodeset_init (struct userdata *);
-void pa_nodeset_done (struct userdata *);
+agl_nodeset *agl_nodeset_init (struct userdata *);
+void agl_nodeset_done (struct userdata *);
 
 agl_node *agl_node_create (struct userdata *, agl_node *);
 const char *agl_node_type_str (agl_node_type);
