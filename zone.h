@@ -34,4 +34,8 @@ struct agl_zone {
 agl_zoneset *agl_zoneset_init (struct userdata *);
 void agl_zoneset_done (struct userdata *);
 
+int agl_zoneset_add_zone (struct userdata *, const char *, uint32_t);
+agl_zone *agl_zoneset_get_zone_by_name (struct userdata *, const char *);
+agl_zone *agl_zoneset_get_zone_by_index (struct userdata *, uint32_t);
+
 #endif

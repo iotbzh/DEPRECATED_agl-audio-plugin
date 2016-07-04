@@ -21,6 +21,7 @@
  */
 #include "router.h"
 #include "switch.h"
+#include "zone.h"
 #include "utils.h"
 
 agl_router *agl_router_init (struct userdata *u)
@@ -106,6 +107,142 @@ int agl_router_phone_compare (struct userdata *u, agl_rtgroup *rtg, agl_node *n1
 {
 	/* TODO */
 	return 1;
+}
+
+agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, const char *name, agl_rtgroup_accept_t accept, agl_rtgroup_compare_t compare)
+{
+	agl_router *router;
+	agl_rtgroup *rtg;
+	pa_hashmap *table;
+
+	pa_assert (u);
+	pa_assert (type == agl_input || type == agl_output);
+	pa_assert (name);
+	pa_assert (accept);
+	pa_assert (compare);
+	pa_assert_se (router = u->router);
+
+	if (type == agl_input)
+		table = router->rtgroups.input;
+	else
+		table = router->rtgroups.output;
+	pa_assert (table);
+
+	rtg = pa_xnew0 (agl_rtgroup, 1);
+	rtg->name = pa_xstrdup (name);
+	rtg->accept = accept;
+	rtg->compare = compare;
+	AGL_DLIST_INIT(rtg->entries);
+
+	pa_hashmap_put (table, rtg->name, rtg);
+
+	pa_log_debug ("routing group '%s' created", name);
+
+	return rtg;
+}
+
+void agl_router_destroy_rtgroup (struct userdata *u, agl_direction type, const char *name)
+{
+	agl_router *router;
+	agl_rtgroup *rtg;
+	pa_hashmap *table;
+
+	pa_assert (u);
+	pa_assert (name);
+	pa_assert_se (router = u->router);
+
+	if (type == agl_input)
+		table = router->rtgroups.input;
+	else
+		table = router->rtgroups.output;
+	pa_assert (table);
+
+	rtg = pa_hashmap_remove (table, name);
+	if (!rtg) {
+		pa_log_debug ("can't destroy routing group '%s': not found", name);
+	} else {
+		//rtgroup_destroy (u, rtg);
+		pa_log_debug ("routing group '%s' destroyed", name);
+	}
+}
+
+bool agl_router_assign_class_to_rtgroup (struct userdata *u, agl_node_type class, uint32_t zone, agl_direction type, const char *name)
+{
+	agl_router *router;
+	pa_hashmap *rtable;
+	agl_rtgroup ***classmap;
+	agl_rtgroup **zonemap;
+	const char *classname;
+	const char *direction;
+	agl_rtgroup *rtg;
+	agl_zone *rzone;
+
+	pa_assert (u);
+	pa_assert (zone < AGL_ZONE_MAX);	
+	pa_assert (type == agl_input || type == agl_output);
+	pa_assert (name);
+	pa_assert_se (router = u->router);
+
+	if (type == agl_input) {
+		rtable = router->rtgroups.input;
+		classmap = router->classmap.input;
+	} else {
+		rtable = router->rtgroups.output;
+		classmap = router->classmap.output;
+	}
+
+	if (class < 0 || class >= router->maplen) {
+		pa_log_debug ("Cannot assign class to routing group '%s': "
+			      "id %d out of range (0 - %d)",
+			      name, class, router->maplen);
+		return false;
+	}
+
+	classname = agl_node_type_str (class); /* "Player", "Radio"... */
+	direction = agl_node_direction_str (type); /* "input", "output" */
+
+	rtg = pa_hashmap_get (rtable, name);
+	if (!rtg) {
+		pa_log_debug ("Cannot assign class to routing group '%s': "
+			      "router group not found", name);
+		return false;
+	}
+
+	zonemap = classmap[zone];
+	if (!zonemap) {	/* THIS LOOKS LIKE A HACK TO IGNORE THE ERROR... */
+		zonemap = pa_xnew0 (agl_rtgroup *, router->maplen);
+		classmap[zone] = zonemap;
+	}
+
+	zonemap[class] = rtg;
+
+	 /* try to get zone name for logging, if fails, only print id number */
+	rzone = agl_zoneset_get_zone_by_index (u, zone);
+	if (rzone) {
+		pa_log_debug ("class '%s'@'%s' assigned to routing group '%s'",
+			      classname, rzone->name, name); 
+	} else {
+		pa_log_debug ("class '%s'@zone%d assigned to routing group '%s'",
+			      classname, zone, name);
+	}
+
+	return true;
+}
+
+void agl_router_assign_class_priority (struct userdata *u, agl_node_type class, int priority)
+{
+	agl_router *router;
+	int *priormap;
+
+	pa_assert (u);
+	pa_assert_se (router = u->router);
+	pa_assert_se (priormap = router->priormap);
+
+	if (class > 0 && class < router->maplen) {
+		pa_log_debug ("assigning priority %d to class '%s'",
+			      priority, agl_node_type_str (class));
+		priormap[class] = priority;
+	}
 }
 
 void agl_router_register_node (struct userdata *u, agl_node *node)

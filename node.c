@@ -68,6 +68,27 @@ void agl_nodeset_done(struct userdata *u)
 	}
 }
 
+int agl_nodeset_add_role (struct userdata *u, const char *role, agl_node_type type, agl_nodeset_resdef *resdef)
+{
+	agl_nodeset *ns;
+	agl_nodeset_map *map;
+
+	pa_assert (u);
+	pa_assert_se (ns = u->nodeset);
+
+	map = pa_xnew0 (agl_nodeset_map, 1);
+	map->name = pa_xstrdup (role);
+	map->type = type;
+	map->role = pa_xstrdup (role);
+
+	if (resdef) {
+		map->resdef = pa_xnew (agl_nodeset_resdef, 1);
+		memcpy (map->resdef, resdef, sizeof(agl_nodeset_resdef));
+	}
+
+	return pa_hashmap_put (ns->roles, (void *)map->name, map);
+}
+
 agl_node *agl_node_create (struct userdata *u, agl_node *data)
 {
 	agl_nodeset *ns;
@@ -129,6 +150,16 @@ const char *agl_node_type_str (agl_node_type type)
 		case agl_event:             return "Event";
 		case agl_system:            return "System";
 		default:                    return "<user defined>";
+	}
+}
+
+const char *agl_node_direction_str (agl_direction direction)
+{
+	switch (direction) {
+		case agl_direction_unknown: return "unknown";
+		case agl_input:             return "input";
+		case agl_output:            return "output";
+		default:                    return "< ??? >";
 	}
 }
 

@@ -101,8 +101,11 @@ struct agl_node {
 agl_nodeset *agl_nodeset_init (struct userdata *);
 void agl_nodeset_done (struct userdata *);
 
+int agl_nodeset_add_role (struct userdata *, const char *, agl_node_type, agl_nodeset_resdef *);
+
 agl_node *agl_node_create (struct userdata *, agl_node *);
 const char *agl_node_type_str (agl_node_type);
+const char *agl_node_direction_str (agl_direction);
 
 agl_node *agl_node_get_from_data (struct userdata *, agl_direction, void *);
 agl_node *agl_node_get_from_client (struct userdata *, pa_client *);

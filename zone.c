@@ -56,3 +56,56 @@ void agl_zoneset_done (struct userdata *u)
 		free (zs);
 	}    
 }
+
+int agl_zoneset_add_zone (struct userdata *u, const char *name, uint32_t index)
+{
+	agl_zoneset *zs;
+	agl_zone *zone;
+
+	pa_assert (u);
+	pa_assert (name);
+	pa_assert (index < AGL_ZONE_MAX);
+	pa_assert_se (zs = u->zoneset);
+
+	zone = pa_xnew (agl_zone, 1);
+	zone->name = pa_xstrdup (name);
+	zone->index = index;
+
+	pa_hashmap_put (zs->zones.hash, (void *)zone->name, zone);
+
+	zs->zones.index[index] = zone;
+
+	return 0;
+}
+
+agl_zone *agl_zoneset_get_zone_by_name (struct userdata *u, const char *name)
+{
+	agl_zoneset *zs;
+	agl_zone *zone;
+
+	pa_assert (u);
+	pa_assert_se (zs = u->zoneset);
+
+	if (name && zs->zones.hash)
+		zone = pa_hashmap_get (zs->zones.hash, name);
+	else
+		zone = NULL;
+
+	return zone;
+}
+
+agl_zone *agl_zoneset_get_zone_by_index (struct userdata *u, uint32_t index)
+{
+	agl_zoneset *zs;
+	agl_zone *zone;
+
+	pa_assert (u);
+	pa_assert_se (zs = u->zoneset);
+
+	if (index < AGL_ZONE_MAX)
+		zone = zs->zones.index[index];
+	else
+		zone = NULL;
+
+	return zone;
+}

@@ -20,6 +20,7 @@
  *
  */
 #include "config.h"
+#include "zone.h"
 
 const char *agl_config_file_get_path (const char *dir, const char *file, char *buf, size_t len)
 {
@@ -116,6 +117,24 @@ bool use_default_configuration (struct userdata *u)
 	classmap_def *c;
 	typemap_def *t;
 	prior_def *p;
+
+	pa_assert (u);
+
+	for (z = zones; z->name; z++)
+		agl_zoneset_add_zone (u, z->name, (uint32_t)(z - zones));
+
+	for (r = rtgroups; r->name; r++)
+		agl_router_create_rtgroup (u, r->type, r->name, r->accept, r->compare);
+
+	for (c = classmap; c->rtgroup; c++)
+		agl_router_assign_class_to_rtgroup (u, c->class, c->zone,
+						       c->type, c->rtgroup);
+
+	for (t = typemap; t->id; t++) 
+		agl_nodeset_add_role (u, t->id, t->type, NULL);
+
+	for (p = priormap; p->class; p++)
+		agl_router_assign_class_priority (u, p->class, p->priority);
 
 	return true;
 }
