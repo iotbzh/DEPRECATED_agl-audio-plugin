@@ -149,7 +149,7 @@ const char *agl_node_type_str (agl_node_type type)
 		case agl_alert:             return "Alert";
 		case agl_event:             return "Event";
 		case agl_system:            return "System";
-		default:                    return "<user defined>";
+		default:                    return "default";
 	}
 }
 

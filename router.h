@@ -32,8 +32,9 @@ typedef bool (*agl_rtgroup_accept_t)(struct userdata *, agl_rtgroup *, agl_node 
 typedef int (*agl_rtgroup_compare_t)(struct userdata *, agl_rtgroup *, agl_node *, agl_node *);
 
 struct agl_rtgroup {
-	char *name;      /**< name of the rtgroup */
+	char *name;          /**< name of the rtgroup */
 	agl_dlist entries;   /**< listhead of ordered rtentries */
+	agl_node *node;      /**< final node */
 	agl_rtgroup_accept_t accept; /**< function pointer, whether to accept a node or not */
 	agl_rtgroup_compare_t compare; /**< function pointer, comparision for ordering */
 };
@@ -75,7 +76,7 @@ bool agl_router_phone_accept (struct userdata *, agl_rtgroup *, agl_node *);
 int agl_router_default_compare (struct userdata *, agl_rtgroup *, agl_node *, agl_node *);
 int agl_router_phone_compare (struct userdata *, agl_rtgroup *, agl_node *, agl_node *);
 
-agl_rtgroup *agl_router_create_rtgroup (struct userdata *, agl_direction, const char *, agl_rtgroup_accept_t, agl_rtgroup_compare_t);
+agl_rtgroup *agl_router_create_rtgroup (struct userdata *, agl_direction, const char *, const char *, agl_rtgroup_accept_t, agl_rtgroup_compare_t);
 void agl_router_destroy_rtgroup (struct userdata *, agl_direction, const char *);
 bool agl_router_assign_class_to_rtgroup (struct userdata *, agl_node_type, uint32_t, agl_direction, const char *);
 void agl_router_assign_class_priority (struct userdata *, agl_node_type, int);

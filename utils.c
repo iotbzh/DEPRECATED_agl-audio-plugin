@@ -196,8 +196,26 @@ pa_sink *agl_utils_get_primary_alsa_sink (struct userdata *u)
 	pa_assert_se ((core = u->core));
 
         PA_IDXSET_FOREACH(sink, core->sinks, idx) {
-		if (sink->name && strstr (sink->name, "alsa_output"))
+		if (sink->name && strstr (sink->name, "alsa_output") && strstr (sink->name, "pci"))
 			return sink;
+        }
+
+	return NULL;
+}
+
+pa_sink *agl_utils_get_alsa_sink (struct userdata *u, const char *name)
+{
+	pa_core *core;
+	pa_sink *sink;
+	int idx;
+
+	pa_assert (u);
+	pa_assert_se ((core = u->core));
+
+        PA_IDXSET_FOREACH(sink, core->sinks, idx) {
+		if (sink->name && strstr (sink->name, "alsa_output")
+		               && strstr (sink->name, name))
+				return sink;
         }
 
 	return NULL;

@@ -22,6 +22,8 @@
 #include "config.h"
 #include "zone.h"
 
+bool use_default_configuration (struct userdata *);
+
 const char *agl_config_file_get_path (const char *dir, const char *file, char *buf, size_t len)
 {
 	pa_assert (file);
@@ -48,7 +50,7 @@ bool agl_config_parse_file (struct userdata *u, const char *path)
 
 	if (!success) {
 		pa_log_info ("applying builtin default configuration");
-		//success = use_default_configuration (u);
+		success = use_default_configuration (u);
 	}
 
 	return success;
@@ -75,20 +77,21 @@ static zone_def zones[] = {
 
 static rtgroup_def rtgroups[] = {
 	{ agl_input,
-	  "phone",
+	  "Phone",
+	  "PhoneCard",
 	  agl_router_phone_accept,
 	  agl_router_phone_compare
 	},
 
-	{ 0, NULL, NULL, NULL }
+	{ 0, NULL, NULL, NULL, NULL }
 };
 
 static classmap_def classmap[] = {
-	{ agl_phone,	0, agl_output, "phone" },
-	{ agl_player,	0, agl_output, "default" },
-	{ agl_radio,	0, agl_output, "default" },
-	{ agl_navigator,0, agl_output, "default" },
-	{ agl_event,	0, agl_output, "default" },
+	{ agl_phone,	0, agl_input, "Phone" },
+	{ agl_player,	0, agl_input, "default" },
+	{ agl_radio,	0, agl_input, "default" },
+	{ agl_navigator,0, agl_input, "default" },
+	{ agl_event,	0, agl_input, "default" },
 	{ agl_node_type_unknown, 0, agl_direction_unknown, NULL }
 };
 
@@ -124,7 +127,8 @@ bool use_default_configuration (struct userdata *u)
 		agl_zoneset_add_zone (u, z->name, (uint32_t)(z - zones));
 
 	for (r = rtgroups; r->name; r++)
-		agl_router_create_rtgroup (u, r->type, r->name, r->accept, r->compare);
+		agl_router_create_rtgroup (u, r->type, r->name, r->node_desc,
+					      r->accept, r->compare);
 
 	for (c = classmap; c->rtgroup; c++)
 		agl_router_assign_class_to_rtgroup (u, c->class, c->zone,

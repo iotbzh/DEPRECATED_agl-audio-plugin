@@ -23,19 +23,28 @@
 #include <pulsecore/core-util.h>        /* required for "pa_streq" */
 
 #include "classify.h"
+#include "node.h"
 
 agl_node_type agl_classify_guess_stream_node_type (struct userdata *u,  pa_proplist *pl)
 {
+	agl_nodeset *ns;
+	agl_nodeset_map *map;
 	agl_node_type type;
 	const char *role;
 
 	pa_assert (u);
 	pa_assert (pl);
+	pa_assert_se (ns = u->nodeset);
 
 	role = pa_proplist_gets (pl, PA_PROP_MEDIA_ROLE);
 
 	if (!role)
 		type = agl_node_type_unknown;
+
+	 /* ask the configuration, see defaults in "config.c" */
+	else if (map = pa_hashmap_get (ns->roles, role))
+		type = map->type;
+	 /* configuration did not match, here are some sensible defaults */
 	else if (pa_streq (role, "radio"))
 		type = agl_radio;
 	else if (pa_streq (role, "music"))

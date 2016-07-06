@@ -41,6 +41,7 @@ const char *agl_utils_get_source_name (pa_source *);
 const char *agl_utils_get_sink_input_name (pa_sink_input *);
 const char *agl_utils_get_source_output_name (pa_source_output *);
 pa_sink *agl_utils_get_primary_alsa_sink (struct userdata *);
+pa_sink *agl_utils_get_alsa_sink (struct userdata *, const char *);
 void agl_utils_init_stamp (void);
 uint32_t agl_utils_new_stamp (void);
 uint32_t agl_utils_get_stamp (void);

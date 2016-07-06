@@ -103,15 +103,13 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 
 				/* DEVICE DESTINATION */
 				case agl_device:
-				/* IF THERE IS NO SOURCE : DEFAULT OUTPUT PREROUTE */
-				/* if (!from)
-					return setup_device_output(u, to) != NULL;
-				else { */
 				switch (from->implement) {
 					/* STREAM TO DEVICE : OK */
 					case agl_stream:
-						//if (!setup_default_stream2dev_link (u, from, to))
-						//	return false;
+						sink = agl_utils_get_alsa_sink (u, to->paname);
+						source = agl_utils_get_null_source (u, from->nullsink);
+
+						from->loopnode = agl_loopnode_create (u, AGL_LOOPNODE_SINK, from->index, source->index, sink->index);
 						break;
 					/* DEVICE TO DEVICE : OK */
 					case agl_device:

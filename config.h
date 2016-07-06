@@ -34,6 +34,7 @@ typedef struct {
 typedef struct {
 	agl_direction type;		/* agl_input/agl_output */
 	const char *name;
+	const char *node_desc;
 	agl_rtgroup_accept_t accept;
 	agl_rtgroup_compare_t compare;
 } rtgroup_def;

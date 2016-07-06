@@ -109,18 +109,19 @@ int agl_router_phone_compare (struct userdata *u, agl_rtgroup *rtg, agl_node *n1
 	return 1;
 }
 
-agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, const char *name, agl_rtgroup_accept_t accept, agl_rtgroup_compare_t compare)
+agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, const char *name, const char *node_desc, agl_rtgroup_accept_t accept, agl_rtgroup_compare_t compare)
 {
 	agl_router *router;
 	agl_rtgroup *rtg;
+	agl_nodeset *nodeset;
+	agl_node *node;
 	pa_hashmap *table;
 
 	pa_assert (u);
 	pa_assert (type == agl_input || type == agl_output);
 	pa_assert (name);
-	pa_assert (accept);
-	pa_assert (compare);
 	pa_assert_se (router = u->router);
+	pa_assert_se (nodeset = u->nodeset);
 
 	if (type == agl_input)
 		table = router->rtgroups.input;
@@ -133,6 +134,21 @@ agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, 
 	rtg->accept = accept;
 	rtg->compare = compare;
 	AGL_DLIST_INIT(rtg->entries);
+	/* associate an agl_output node for an agl_input routing group */
+	if (type == agl_input) {
+		node = agl_node_create (u, NULL);
+		node->direction = agl_output;
+		node->implement = agl_device;
+		node->visible = true;
+		node->available = true;
+		node->paname = pa_xstrdup (node_desc);
+		 /* add to global nodeset */
+		pa_idxset_put (nodeset->nodes, node, &node->index);
+		rtg->node = node;
+	} else {
+		rtg->node = NULL;
+	}
+	
 
 	pa_hashmap_put (table, rtg->name, rtg);
 
@@ -247,10 +263,28 @@ void agl_router_assign_class_priority (struct userdata *u, agl_node_type class, 
 
 void agl_router_register_node (struct userdata *u, agl_node *node)
 {
+	agl_router *router;
+	agl_rtgroup *rtg;
+
 	pa_assert (u);
 	pa_assert (node);
+	pa_assert_se (router = u->router);
 
-	implement_default_route (u, node, NULL, agl_utils_new_stamp ());
+	/* we try to discover node routing group from the configuration, "Phone" for instance,
+	 * see defaults in "config.c. Otherwise we just say NULL, a.k.a. default */
+	if (node->direction == agl_input) {
+		rtg = pa_hashmap_get (router->rtgroups.input, agl_node_type_str (node->type));
+		if (rtg)
+			implement_default_route (u, node, rtg->node, agl_utils_new_stamp ());
+		else
+			implement_default_route (u, node, NULL, agl_utils_new_stamp ());
+	} else {
+		rtg = pa_hashmap_get (router->rtgroups.output, agl_node_type_str (node->type));
+		if (rtg)
+			implement_default_route (u, rtg->node, node, agl_utils_new_stamp ());
+		else
+			implement_default_route (u, NULL, node, agl_utils_new_stamp ());
+	}
 }
 
 void agl_router_unregister_node (struct userdata *u, agl_node *node)
