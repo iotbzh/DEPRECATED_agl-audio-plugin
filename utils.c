@@ -120,6 +120,39 @@ pa_source *agl_utils_get_null_source (struct userdata *u, struct agl_null_sink *
 	return sink ? sink->monitor_source : NULL;
 }
 
+void agl_utils_volume_ramp (struct userdata *u, struct agl_null_sink *ns, bool up)
+{
+	pa_core *core;
+	pa_sink *sink;
+	pa_sink_input *sinp;
+	uint32_t index;
+	pa_cvolume_ramp rampvol;
+	pa_volume_t newvol;
+	long time;
+
+	if (up) {
+		newvol = PA_VOLUME_NORM;
+		time = 5000;
+	} else {
+		newvol = PA_VOLUME_NORM *10/100;
+		time = 3000;
+	}
+
+	pa_assert (u);
+	pa_assert_se ((core = u->core));
+
+	sink = agl_utils_get_null_sink (u, ns);
+	PA_IDXSET_FOREACH(sinp, core->sink_inputs, index) {
+		if (sinp->sink && sinp->sink == sink)
+			break;
+		sinp = NULL;
+	}
+	if (!sinp) return;
+
+	pa_cvolume_ramp_set (&rampvol, sinp->volume.channels, PA_VOLUME_RAMP_TYPE_LINEAR,
+			     time, newvol);
+	pa_sink_input_set_volume_ramp (sinp, &rampvol, true, false);
+}
 
 const char *agl_utils_get_card_name (pa_card *card)
 {
@@ -196,7 +229,7 @@ pa_sink *agl_utils_get_primary_alsa_sink (struct userdata *u)
 	pa_assert_se ((core = u->core));
 
         PA_IDXSET_FOREACH(sink, core->sinks, idx) {
-		if (sink->name && strstr (sink->name, "alsa_output") && strstr (sink->name, "pci"))
+		if (sink->name && strstr (sink->name, "alsa_output"))
 			return sink;
         }
 

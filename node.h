@@ -104,10 +104,13 @@ void agl_nodeset_done (struct userdata *);
 int agl_nodeset_add_role (struct userdata *, const char *, agl_node_type, agl_nodeset_resdef *);
 
 agl_node *agl_node_create (struct userdata *, agl_node *);
+void agl_node_destroy (struct userdata *, agl_node *);
 const char *agl_node_type_str (agl_node_type);
 const char *agl_node_direction_str (agl_direction);
 
 agl_node *agl_node_get_from_data (struct userdata *, agl_direction, void *);
 agl_node *agl_node_get_from_client (struct userdata *, pa_client *);
+
+bool agl_node_has_highest_priority (struct userdata *, agl_node *);
 
 #endif

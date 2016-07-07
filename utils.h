@@ -32,6 +32,7 @@ struct agl_null_sink *agl_utils_create_null_sink (struct userdata *, const char 
 void agl_utils_destroy_null_sink (struct userdata *, struct agl_null_sink *);
 pa_sink *agl_utils_get_null_sink (struct userdata *, struct agl_null_sink *);
 pa_source *agl_utils_get_null_source (struct userdata *, struct agl_null_sink *);
+void agl_utils_volume_ramp (struct userdata *, struct agl_null_sink *, bool);
 
  /* general helper functions */ 
 const char *agl_utils_get_card_name (pa_card *);

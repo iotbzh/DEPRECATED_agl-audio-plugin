@@ -36,7 +36,7 @@ typedef struct {
 	const char *name;
 	const char *node_desc;
 	agl_rtgroup_accept_t accept;
-	agl_rtgroup_compare_t compare;
+	agl_rtgroup_effect_t effect;
 } rtgroup_def;
 
  /* CLASS MAP (agl_phone="phone" card routing group...) */

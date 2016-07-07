@@ -107,6 +107,7 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 					/* STREAM TO DEVICE : OK */
 					case agl_stream:
 						sink = agl_utils_get_alsa_sink (u, to->paname);
+						if (!sink) break;
 						source = agl_utils_get_null_source (u, from->nullsink);
 
 						from->loopnode = agl_loopnode_create (u, AGL_LOOPNODE_SINK, from->index, source->index, sink->index);
@@ -147,7 +148,6 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 
 			sink = agl_utils_get_primary_alsa_sink (u);
 			source = agl_utils_get_null_source (u, from->nullsink);
-
 			from->loopnode = agl_loopnode_create (u, AGL_LOOPNODE_SINK, from->index, source->index, sink->index);
 		}
 	}

@@ -74,13 +74,12 @@ static zone_def zones[] = {
 	{ NULL }
 };
 
-
 static rtgroup_def rtgroups[] = {
 	{ agl_input,
 	  "Phone",
 	  "PhoneCard",
 	  agl_router_phone_accept,
-	  agl_router_phone_compare
+	  agl_router_phone_effect
 	},
 
 	{ 0, NULL, NULL, NULL, NULL }
@@ -128,7 +127,7 @@ bool use_default_configuration (struct userdata *u)
 
 	for (r = rtgroups; r->name; r++)
 		agl_router_create_rtgroup (u, r->type, r->name, r->node_desc,
-					      r->accept, r->compare);
+					      r->accept, r->effect);
 
 	for (c = classmap; c->rtgroup; c++)
 		agl_router_assign_class_to_rtgroup (u, c->class, c->zone,

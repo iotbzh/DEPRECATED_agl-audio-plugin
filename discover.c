@@ -743,12 +743,10 @@ void agl_discover_register_source_output (struct userdata *u, pa_source_output *
 
 void agl_discover_add_sink_input (struct userdata *u, pa_sink_input *sinp) 
 {
-	pa_core *core;
 	agl_node *node;
 
 	pa_assert (u);
 	pa_assert (sinp);
-	pa_assert_se (core = u->core);
 
 	if (!sinp->client)
 		return;
@@ -759,16 +757,22 @@ void agl_discover_add_sink_input (struct userdata *u, pa_sink_input *sinp)
 
 	 /* start routing */
 	agl_router_register_node (u, node);
+
+	 /* apply priority effects */
+	agl_router_apply_node_priority_effect (u, node, true);
 }
 
 void agl_discover_remove_sink_input (struct userdata *u, pa_sink_input *sinp)
 {
-	pa_core *core;
-	agl_node *node;
+	agl_nodeset *nodeset;
+	agl_node *node, *n;
+	pa_sink *sink;
+	int priority;
+	uint32_t index;
 
 	pa_assert (u);
 	pa_assert (sinp);
-	pa_assert_se (core = u->core);
+	pa_assert_se (nodeset = u->nodeset);
 
 	if (!sinp->client)
 		return;
@@ -779,4 +783,10 @@ void agl_discover_remove_sink_input (struct userdata *u, pa_sink_input *sinp)
 
 	 /* stop routing */
 	agl_router_unregister_node (u, node);
+
+	 /* un-apply priority effects */
+	agl_router_apply_node_priority_effect (u, node, false);
+
+	 /* remove node */
+	agl_node_destroy (u, node);
 }

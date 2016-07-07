@@ -97,19 +97,26 @@ bool agl_router_phone_accept (struct userdata *u, agl_rtgroup *rtg, agl_node *no
 	return true;
 }
 
-int agl_router_default_compare (struct userdata *u, agl_rtgroup *rtg, agl_node *n1, agl_node *n2)
+int agl_router_default_effect (struct userdata *u, agl_rtgroup *rtg, agl_node *node, bool new)
 {
 	/* TODO */
 	return 1;
 }
 
-int agl_router_phone_compare (struct userdata *u, agl_rtgroup *rtg, agl_node *n1, agl_node *n2)
+int agl_router_phone_effect (struct userdata *u, agl_rtgroup *rtg, agl_node *node, bool new)
 {
-	/* TODO */
+	pa_assert (u);
+	pa_assert (node);
+
+	if (new)
+		agl_utils_volume_ramp (u, node->nullsink, false);
+	else
+		agl_utils_volume_ramp (u, node->nullsink, true);
+
 	return 1;
 }
 
-agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, const char *name, const char *node_desc, agl_rtgroup_accept_t accept, agl_rtgroup_compare_t compare)
+agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, const char *name, const char *node_desc, agl_rtgroup_accept_t accept, agl_rtgroup_effect_t effect)
 {
 	agl_router *router;
 	agl_rtgroup *rtg;
@@ -132,7 +139,7 @@ agl_rtgroup *agl_router_create_rtgroup (struct userdata *u, agl_direction type, 
 	rtg = pa_xnew0 (agl_rtgroup, 1);
 	rtg->name = pa_xstrdup (name);
 	rtg->accept = accept;
-	rtg->compare = compare;
+	rtg->effect = effect;
 	AGL_DLIST_INIT(rtg->entries);
 	/* associate an agl_output node for an agl_input routing group */
 	if (type == agl_input) {
@@ -194,7 +201,7 @@ bool agl_router_assign_class_to_rtgroup (struct userdata *u, agl_node_type class
 	agl_zone *rzone;
 
 	pa_assert (u);
-	pa_assert (zone < AGL_ZONE_MAX);	
+	pa_assert (zone < AGL_ZONE_MAX);
 	pa_assert (type == agl_input || type == agl_output);
 	pa_assert (name);
 	pa_assert_se (router = u->router);
@@ -225,7 +232,7 @@ bool agl_router_assign_class_to_rtgroup (struct userdata *u, agl_node_type class
 	}
 
 	zonemap = classmap[zone];
-	if (!zonemap) {	/* THIS LOOKS LIKE A HACK TO IGNORE THE ERROR... */
+	if (!zonemap) {
 		zonemap = pa_xnew0 (agl_rtgroup *, router->maplen);
 		classmap[zone] = zonemap;
 	}
@@ -259,6 +266,81 @@ void agl_router_assign_class_priority (struct userdata *u, agl_node_type class, 
 			      priority, agl_node_type_str (class));
 		priormap[class] = priority;
 	}
+}
+
+int agl_router_get_node_priority (struct userdata *u, agl_node *node)
+{
+	agl_router *router;
+	int class;
+
+	pa_assert (u);
+	pa_assert (node);
+	pa_assert_se (router = u->router);
+
+	class = node->type;
+
+	if (class < 0 || class >= (int)router->maplen)
+		return 0;
+
+	return router->priormap[class];
+}
+
+bool agl_router_apply_node_priority_effect (struct userdata *u, agl_node *node, bool new)
+{
+	agl_router *router;
+	agl_rtgroup *rtg;
+	agl_nodeset *nodeset;
+	agl_node *n;
+	pa_sink *sink;
+	int priority;
+	uint32_t index;
+
+	pa_assert (u);
+	pa_assert (node);
+	pa_assert_se (router = u->router);
+	pa_assert_se (nodeset = u->nodeset);
+
+	 /* do we have a routing group associated with this node ? It may have a custom effect */
+	if (node->direction == agl_input)
+		rtg = pa_hashmap_get (router->rtgroups.input, agl_node_type_str (node->type));
+	else
+		rtg = pa_hashmap_get (router->rtgroups.output, agl_node_type_str (node->type));
+
+	/* now let us compare priorities, and apply effect if needed */
+	/* "new" case */
+	if (new) {
+		priority = agl_router_get_node_priority (u, node);
+		PA_IDXSET_FOREACH(n, nodeset->nodes, index) {
+			if (n->nullsink && (priority > agl_router_get_node_priority (u, n))) {
+				sink = agl_utils_get_null_sink (u, n->nullsink);
+				if (sink) {
+					/* do we have a custom effect ? otherwise, just mute it */
+					if (rtg && rtg->effect)
+						rtg->effect (u, rtg, n, new);
+					else
+						pa_sink_set_mute (sink, new, false);
+				}
+			}
+		}
+	} else {
+	/* "old" case */
+		if (!agl_node_has_highest_priority (u, node))
+			return true;
+		PA_IDXSET_FOREACH(n, nodeset->nodes, index) {
+			if (n->nullsink) {
+				sink = agl_utils_get_null_sink (u, n->nullsink);
+				if (sink) {
+					/* do we have a custom effect ? otherwise, just unmute it */
+					if (rtg && rtg->effect)
+						rtg->effect (u, rtg, n, new);
+					else
+						pa_sink_set_mute (sink, new, false);
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 void agl_router_register_node (struct userdata *u, agl_node *node)
@@ -393,12 +475,10 @@ void implement_default_route (struct userdata *u,
                               agl_node *start, agl_node *end,
                               uint32_t stamp)
 {
-	if (start->direction == agl_input) {
+	if (start->direction == agl_input)
 		agl_switch_setup_link (u, start, end, false);
-		//agl_volume_add_limiting_class(u, end, volume_class(start), stamp);
-	} else {
+	else
 		agl_switch_setup_link (u, end, start, false);
-	}
 }
 
 agl_node *find_default_route (struct userdata *u, agl_node *start, uint32_t stamp)

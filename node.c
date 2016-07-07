@@ -20,6 +20,7 @@
  *
  */
 #include "node.h"
+#include "router.h"
 
 #include <pulsecore/idxset.h>
 
@@ -129,10 +130,20 @@ agl_node *agl_node_create (struct userdata *u, agl_node *data)
 		}
 	}
 
-	 /* TODO : register the node to the router */
-	/* agl_router_register_node (u, node); */
-
 	return node;
+}
+
+void agl_node_destroy (struct userdata *u, agl_node *node)
+{
+	agl_nodeset *ns;
+
+	pa_assert (u);
+	pa_assert (node);
+	pa_assert_se (ns = u->nodeset);
+
+	pa_idxset_remove_by_index (ns->nodes, node->index);
+
+	pa_xfree (node);
 }
 
 const char *agl_node_type_str (agl_node_type type)
@@ -207,4 +218,25 @@ agl_node *agl_node_get_from_client (struct userdata *u, pa_client *client)
 	}
 
 	return NULL;
+}
+
+bool agl_node_has_highest_priority (struct userdata *u, agl_node *node)
+{
+	agl_nodeset *nodeset;
+	agl_node *n;
+	int priority;
+	uint32_t index;
+
+	pa_assert (u);
+	pa_assert (node);
+	pa_assert (nodeset = u->nodeset);
+
+	priority = agl_router_get_node_priority (u, node);
+
+	PA_IDXSET_FOREACH(n, nodeset->nodes, index) {
+		if ((n != node) && (agl_router_get_node_priority (u, n) >= priority))
+			return false;
+	}
+
+	return true;
 }
