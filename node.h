@@ -105,6 +105,7 @@ int agl_nodeset_add_role (struct userdata *, const char *, agl_node_type, agl_no
 
 agl_node *agl_node_create (struct userdata *, agl_node *);
 void agl_node_destroy (struct userdata *, agl_node *);
+agl_node_type agl_node_type_from_str (const char *);
 const char *agl_node_type_str (agl_node_type);
 const char *agl_node_direction_str (agl_direction);
 

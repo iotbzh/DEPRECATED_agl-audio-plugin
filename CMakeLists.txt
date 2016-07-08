@@ -27,18 +27,18 @@ add_compile_options(-ffunction-sections -fdata-sections)
 
 ###########################################################################
 
-PKG_CHECK_MODULES(pulseaudio-module-devel REQUIRED pulseaudio-module-devel)
+PKG_CHECK_MODULES(dependencies REQUIRED json-c pulseaudio-module-devel)
 
-ADD_DEFINITIONS(${pulseaudio-module-devel_CFLAGS})
-SET(include_dirs ${INCLUDE_DIRS} ${pulseaudio-module-devel_INCLUDE_DIRS})
-SET(link_libraries ${LINK_LIBRARIES} ${pulseaudio-module-devel_LIBRARIES})
-STRING(REGEX REPLACE ";" " " link_flags "${pulseaudio-module-devel_LDFLAGS}" "")
+ADD_DEFINITIONS(${dependencies_CFLAGS})
+SET(include_dirs ${INCLUDE_DIRS} ${dependencies_INCLUDE_DIRS})
+SET(link_libraries ${LINK_LIBRARIES} ${dependencies_LIBRARIES})
+STRING(REGEX REPLACE ";" " " link_flags "${dependencies_LDFLAGS}" "")
 
 SET(plugin_install_dir ${CMAKE_INSTALL_LIBDIR}/pulse-6.0/modules)
 
 ############################################################
 
-ADD_LIBRARY(agl-audio-plugin MODULE module.c audiomgr.c classify.c config.c discover.c loopback.c node.c router.c socketif.c switch.c tracker.c utils.c zone.c)
+ADD_LIBRARY(agl-audio-plugin MODULE module.c audiomgr.c classify.c config.c discover.c loopback.c node.c router.c socketif.c switch.c tracker.c utils.c zone.c pulseaudio-agl.cfg)
 INCLUDE_DIRECTORIES(${include_dirs})
 TARGET_LINK_LIBRARIES(agl-audio-plugin ${link_libraries})
 SET_TARGET_PROPERTIES(agl-audio-plugin PROPERTIES PREFIX ""
@@ -46,3 +46,5 @@ SET_TARGET_PROPERTIES(agl-audio-plugin PROPERTIES PREFIX ""
 
 INSTALL(TARGETS agl-audio-plugin
         LIBRARY DESTINATION ${plugin_install_dir})
+INSTALL(FILES pulseaudio-agl.cfg
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/pulse)

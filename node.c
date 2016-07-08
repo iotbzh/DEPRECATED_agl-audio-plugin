@@ -23,6 +23,8 @@
 #include "router.h"
 
 #include <pulsecore/idxset.h>
+#include <pulsecore/core-util.h>
+#include <pulsecore/pulsecore-config.h>
 
 agl_nodeset *agl_nodeset_init (struct userdata *u)
 {
@@ -144,6 +146,39 @@ void agl_node_destroy (struct userdata *u, agl_node *node)
 	pa_idxset_remove_by_index (ns->nodes, node->index);
 
 	pa_xfree (node);
+}
+
+
+agl_node_type agl_node_type_from_str (const char *str)
+{
+	agl_node_type type;
+
+	pa_assert (str);
+
+	if (pa_streq (str, "agl_radio"))
+		type = agl_radio;
+	else if (pa_streq (str, "agl_music"))
+		type = agl_player;
+	else if (pa_streq (str, "agl_navigator"))
+		type = agl_navigator;
+	else if (pa_streq (str, "agl_game"))
+		type = agl_game;
+	else if (pa_streq (str, "agl_browser"))
+		type = agl_browser;
+	else if (pa_streq (str, "agl_camera"))
+		type = agl_camera;
+	else if (pa_streq (str, "agl_phone"))
+		type = agl_phone;
+	else if (pa_streq (str, "agl_alert"))
+		type = agl_alert;
+	else if (pa_streq (str, "agl_event"))
+		type = agl_event;
+	else if (pa_streq (str, "agl_system"))
+		type = agl_system;
+	else
+		type = agl_node_type_unknown;
+
+	return type;
 }
 
 const char *agl_node_type_str (agl_node_type type)

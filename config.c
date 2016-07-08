@@ -22,6 +22,14 @@
 #include "config.h"
 #include "zone.h"
 
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <json/json.h>
+
+#include <pulsecore/core-util.h>
+#include <pulsecore/pulsecore-config.h>
+
 bool use_default_configuration (struct userdata *);
 
 const char *agl_config_file_get_path (const char *dir, const char *file, char *buf, size_t len)
@@ -58,8 +66,113 @@ bool agl_config_parse_file (struct userdata *u, const char *path)
 
 bool agl_config_dofile (struct userdata *u, const char *path)
 {
-	/* TODO */
-	return false;
+	int filefd;
+	struct stat filestat;
+	void *filemap;
+	struct json_object *fjson, *root, *sct, *elt, *selt;
+	const char *val;
+	int len, i;
+
+	pa_assert (u);
+	pa_assert (path);
+
+	filefd = open (path, O_RDONLY);
+	if (filefd == -1) {
+		pa_log_info ("could not find configuration file '%s'", path);
+		return false;
+	}
+	fstat (filefd, &filestat);
+
+	filemap = mmap (NULL, filestat.st_size, PROT_READ, MAP_PRIVATE, filefd, 0);
+	if (filemap == MAP_FAILED) {
+		pa_log_info ("could not map configuration file in memory");
+		return false;
+	}
+
+	 /* is the file a JSON file, and if it is, does it have a "config" root ? */
+	fjson = json_tokener_parse (filemap);
+	root = json_object_object_get (fjson, "config");
+	if (!fjson || !root) {
+		pa_log_info ("could not parse JSON configuration file");
+		return false;
+	}
+
+	 /* [zones] section */
+	sct = json_object_object_get (root, "zones");
+	if (!sct) return false;
+	len = json_object_array_length (sct);
+	for (i = 0; i < len; i++) {
+		elt = json_object_array_get_idx (sct, i);
+		val = json_object_get_string (elt);
+		agl_zoneset_add_zone (u, val, (uint32_t)i);
+	}
+
+	 /* [rtgroups] section */
+	sct = json_object_object_get (root, "rtgroups");
+	if (!sct) return false;
+	len = json_object_array_length (sct);
+	for (i = 0; i < len; i++) {
+		const char *name, *type, *card, *accept_fct, *effect_fct;
+		elt = json_object_array_get_idx (sct, i);
+		 name = json_object_get_string (json_object_object_get (elt, "name"));
+		 type = json_object_get_string (json_object_object_get (elt, "type"));
+		 card = json_object_get_string (json_object_object_get (elt, "card"));
+		 accept_fct = json_object_get_string (json_object_object_get (elt, "accept_fct"));
+		 effect_fct = json_object_get_string (json_object_object_get (elt, "effect_fct"));
+		agl_router_create_rtgroup (u, pa_streq(type, "OUTPUT") ? agl_output : agl_input,
+					      name, card,
+					      pa_streq(type, "phone") ? agl_router_phone_accept : NULL,
+					      pa_streq(type, "phone") ? agl_router_phone_effect : NULL);
+	}
+
+	 /* [classmap] section */
+	sct = json_object_object_get (root, "classmap");
+	if (!sct) return false;
+	len = json_object_array_length (sct);
+	for (i = 0; i < len; i++) {
+		const char *class, *type, *rtgroup;
+		int zone;
+		elt = json_object_array_get_idx (sct, i);
+		 class = json_object_get_string (json_object_object_get (elt, "class"));
+		 type = json_object_get_string (json_object_object_get (elt, "type"));
+		 zone = json_object_get_int (json_object_object_get (elt, "zone"));
+		 rtgroup = json_object_get_string (json_object_object_get (elt, "rtgroup"));
+		agl_router_assign_class_to_rtgroup (u, agl_node_type_from_str (class),
+						       zone,
+						       pa_streq(type, "OUTPUT") ? agl_output : agl_input,
+						       rtgroup);
+	}
+
+	 /* [typemap] section */
+	sct = json_object_object_get (root, "typemap");
+	if (!sct) return false;
+	len = json_object_array_length (sct);
+	for (i = 0; i < len; i++) {
+		const char *id, *type;
+		elt = json_object_array_get_idx (sct, i);
+		 id = json_object_get_string (json_object_object_get (elt, "id"));
+		 type = json_object_get_string (json_object_object_get (elt, "type"));
+		agl_nodeset_add_role (u, id, agl_node_type_from_str (type), NULL);
+	}
+
+	 /* [priormap] section */
+	sct = json_object_object_get (root, "priormap");
+	if (!sct) return false;
+	len = json_object_array_length (sct);
+	for (i = 0; i < len; i++) {
+		const char *class;
+		int priority;
+		elt = json_object_array_get_idx (sct, i);
+		 class = json_object_get_string (json_object_object_get (elt, "class"));
+		 priority = json_object_get_int (json_object_object_get (elt, "priority"));
+		agl_router_assign_class_priority (u, agl_node_type_from_str (class), priority);
+	}
+
+	json_object_object_del (fjson, "");
+	munmap (filemap, filestat.st_size);
+	close (filefd);
+
+	return true;
 }
 
 
@@ -80,6 +193,13 @@ static rtgroup_def rtgroups[] = {
 	  "PhoneCard",
 	  agl_router_phone_accept,
 	  agl_router_phone_effect
+	},
+
+	{ agl_input,
+	  "default",
+	  "pci",
+	  NULL,
+	  NULL
 	},
 
 	{ 0, NULL, NULL, NULL, NULL }
