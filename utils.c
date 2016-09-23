@@ -223,7 +223,7 @@ pa_sink *agl_utils_get_primary_alsa_sink (struct userdata *u)
 {
 	pa_core *core;
 	pa_sink *sink;
-	int idx;
+	uint32_t idx;
 
 	pa_assert (u);
 	pa_assert_se ((core = u->core));
@@ -240,7 +240,7 @@ pa_sink *agl_utils_get_alsa_sink (struct userdata *u, const char *name)
 {
 	pa_core *core;
 	pa_sink *sink;
-	int idx;
+	uint32_t idx;
 
 	pa_assert (u);
 	pa_assert_se ((core = u->core));
