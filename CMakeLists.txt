@@ -34,7 +34,8 @@ SET(include_dirs ${INCLUDE_DIRS} ${dependencies_INCLUDE_DIRS})
 SET(link_libraries ${LINK_LIBRARIES} ${dependencies_LIBRARIES})
 STRING(REGEX REPLACE ";" " " link_flags "${dependencies_LDFLAGS}" "")
 
-SET(plugin_install_dir ${CMAKE_INSTALL_LIBDIR}/pulse-6.0/modules)
+SET(PULSE_PV "6.0" CACHE STRING "PulseAudio version")
+SET(plugin_install_dir ${CMAKE_INSTALL_LIBDIR}/pulse-${PULSE_PV}/modules)
 
 ############################################################
 
