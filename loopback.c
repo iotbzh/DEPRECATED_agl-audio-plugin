@@ -85,7 +85,7 @@ agl_loopnode *agl_loopnode_create (struct userdata *u, agl_loopnode_type type,
 		sinp = NULL;
 	}
 	if (!sout || !sinp) {
-		pa_module_unload (core, module, false);
+		pa_module_unload (module, false);
 		return NULL;
 	}
 
@@ -105,7 +105,7 @@ void agl_loopnode_destroy (struct userdata *u, agl_loopnode *loopnode)
 	if (u && (core = u->core)) {
 		if ((module = pa_idxset_get_by_index (core->modules, loopnode->module_index))){
 			pa_log_info ("unloading loopback");
-			pa_module_unload (core, module, false);
+			pa_module_unload (module, false);
 		}
 		pa_xfree (loopnode);
 	}

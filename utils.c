@@ -92,7 +92,7 @@ void agl_utils_destroy_null_sink (struct userdata *u, agl_null_sink *ns)
 	if (u && (core = u->core)) {
 		if ((module = pa_idxset_get_by_index (core->modules, ns->module_index))){
 			pa_log_info ("unloading null sink '%s'", ns->name);
-			pa_module_unload (core, module, false);
+			pa_module_unload (module, false);
 		}
 
 		pa_xfree (ns->name);
