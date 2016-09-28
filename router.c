@@ -328,11 +328,7 @@ bool agl_router_apply_node_priority_effect (struct userdata *u, agl_node *node, 
 	pa_assert_se (router = u->router);
 	pa_assert_se (nodeset = u->nodeset);
 
-	 /* do we have a routing group associated with this node ? It may have a custom effect */
-	if (node->direction == agl_input)
-		rtg = pa_hashmap_get (router->rtgroups.input, agl_node_type_str (node->type));
-	else
-		rtg = pa_hashmap_get (router->rtgroups.output, agl_node_type_str (node->type));
+	rtg = agl_router_get_rtgroup_from_class(u, node->type, 0, node->direction);
 
 	/* now let us compare priorities, and apply effect if needed */
 	/* "new" case */
@@ -382,14 +378,14 @@ void agl_router_register_node (struct userdata *u, agl_node *node)
 
 	/* we try to discover node routing group from the configuration, "Phone" for instance,
 	 * see defaults in "config.c. Otherwise we just say NULL, a.k.a. default */
+	rtg = agl_router_get_rtgroup_from_class(u, node->type, 0, node->direction);
+
 	if (node->direction == agl_input) {
-		rtg = pa_hashmap_get (router->rtgroups.input, agl_node_type_str (node->type));
 		if (rtg)
 			implement_default_route (u, node, rtg->node, agl_utils_new_stamp ());
 		else
 			implement_default_route (u, node, NULL, agl_utils_new_stamp ());
 	} else {
-		rtg = pa_hashmap_get (router->rtgroups.output, agl_node_type_str (node->type));
 		if (rtg)
 			implement_default_route (u, rtg->node, node, agl_utils_new_stamp ());
 		else
