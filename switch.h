@@ -24,7 +24,7 @@
 
 #include "userdata.h"
 
-bool agl_switch_setup_link (struct userdata *, agl_node *, agl_node *, bool);
+bool agl_switch_setup_link (struct userdata *, agl_node *, agl_node *);
 bool agl_switch_teardown_link (struct userdata *, agl_node *, agl_node *);
 
 /*pa_source *setup_device_input(struct userdata *, agl_node *);*/

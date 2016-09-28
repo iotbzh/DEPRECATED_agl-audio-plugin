@@ -500,9 +500,9 @@ void implement_default_route (struct userdata *u,
                               uint32_t stamp)
 {
 	if (start->direction == agl_input)
-		agl_switch_setup_link (u, start, end, false);
+		agl_switch_setup_link (u, start, end);
 	else
-		agl_switch_setup_link (u, end, start, false);
+		agl_switch_setup_link (u, end, start);
 }
 
 agl_node *find_default_route (struct userdata *u, agl_node *start, uint32_t stamp)

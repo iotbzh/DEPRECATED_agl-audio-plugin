@@ -27,7 +27,7 @@
 #include "switch.h"
 #include "node.h"
 
-bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bool explicit)
+bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to)
 {
 	pa_core *core;
 	pa_sink *sink;
@@ -39,7 +39,7 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 	/* EXPLICIT ROUTES/DEFAULT ROUTES */
 
 	/* 1) EXPLICIT ROUTES : "FROM" AND "TO" ARE DEFINED */
-	if (explicit) {
+	if (from && to) {
 		pa_assert (from);
 		pa_assert (to);
 
@@ -55,6 +55,14 @@ bool agl_switch_setup_link (struct userdata *u, agl_node *from, agl_node *to, bo
 				case agl_device:
 					//if (!setup_explicit_stream2dev_link (u, from, to))
 					//	return false;
+					sink = agl_utils_get_alsa_sink (u, to->paname);
+					if (!sink) {
+						pa_log("sink output not found!!!!");
+						sink = agl_utils_get_primary_alsa_sink (u);
+						//break;
+					}
+					source = agl_utils_get_null_source (u, from->nullsink);
+					from->loopnode = agl_loopnode_create (u, AGL_LOOPNODE_SINK, from->index, source->index, sink->index);
 					break;
 				/* DEFAULT */
 				default:
