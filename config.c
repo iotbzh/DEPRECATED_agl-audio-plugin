@@ -121,8 +121,8 @@ bool agl_config_dofile (struct userdata *u, const char *path)
 		 effect_fct = json_object_get_string (json_object_object_get (elt, "effect_fct"));
 		agl_router_create_rtgroup (u, pa_streq(type, "OUTPUT") ? agl_output : agl_input,
 					      name, card,
-					      pa_streq(type, "phone") ? agl_router_phone_accept : NULL,
-					      pa_streq(type, "phone") ? agl_router_phone_effect : NULL);
+					      pa_streq(name, "phone") ? agl_router_phone_accept : NULL,
+					      pa_streq(name, "phone") ? agl_router_phone_effect : NULL);
 	}
 
 	 /* [classmap] section */
