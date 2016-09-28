@@ -252,6 +252,34 @@ bool agl_router_assign_class_to_rtgroup (struct userdata *u, agl_node_type class
 	return true;
 }
 
+agl_rtgroup * agl_router_get_rtgroup_from_class (struct userdata *u, agl_node_type class, uint32_t zone, agl_direction type)
+{
+	agl_router *router;
+	pa_hashmap *rtable;
+	agl_rtgroup ***classmap;
+	agl_rtgroup **zonemap;
+	agl_rtgroup * rtg;
+
+	pa_assert (u);
+	pa_assert_se (router = u->router);
+	pa_assert (class >= 0 && class < router->maplen);
+	pa_assert (zone < AGL_ZONE_MAX);
+	pa_assert (type == agl_input || type == agl_output);
+
+	if (type == agl_input) {
+		rtable = router->rtgroups.input;
+		classmap = router->classmap.input;
+	} else {
+		rtable = router->rtgroups.output;
+		classmap = router->classmap.output;
+	}
+
+	zonemap = classmap[zone];
+	rtg = zonemap[class];
+
+	return rtg;
+}
+
 void agl_router_assign_class_priority (struct userdata *u, agl_node_type class, int priority)
 {
 	agl_router *router;

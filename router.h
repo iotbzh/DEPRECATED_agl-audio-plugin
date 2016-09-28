@@ -79,6 +79,7 @@ int agl_router_phone_effect (struct userdata *, agl_rtgroup *, agl_node *, bool)
 agl_rtgroup *agl_router_create_rtgroup (struct userdata *, agl_direction, const char *, const char *, agl_rtgroup_accept_t, agl_rtgroup_effect_t);
 void agl_router_destroy_rtgroup (struct userdata *, agl_direction, const char *);
 bool agl_router_assign_class_to_rtgroup (struct userdata *, agl_node_type, uint32_t, agl_direction, const char *);
+agl_rtgroup * agl_router_get_rtgroup_from_class (struct userdata *u, agl_node_type class, uint32_t zone, agl_direction type);
 void agl_router_assign_class_priority (struct userdata *, agl_node_type, int);
 int agl_router_get_node_priority (struct userdata *, agl_node *);
 bool agl_router_apply_node_priority_effect (struct userdata *, agl_node *, bool);
