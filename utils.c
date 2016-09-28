@@ -151,7 +151,7 @@ void agl_utils_volume_ramp (struct userdata *u, struct agl_null_sink *ns, bool u
 
 	pa_cvolume_ramp_set (&rampvol, sinp->volume.channels, PA_VOLUME_RAMP_TYPE_LINEAR,
 			     time, newvol);
-	pa_sink_input_set_volume_ramp (sinp, &rampvol, true, false);
+	pa_sink_input_set_volume_ramp (sinp, &rampvol, true);
 }
 
 const char *agl_utils_get_card_name (pa_card *card)
