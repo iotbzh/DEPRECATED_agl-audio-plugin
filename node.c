@@ -157,7 +157,7 @@ agl_node_type agl_node_type_from_str (const char *str)
 
 	if (pa_streq (str, "agl_radio"))
 		type = agl_radio;
-	else if (pa_streq (str, "agl_music"))
+	else if (pa_streq (str, "agl_player"))
 		type = agl_player;
 	else if (pa_streq (str, "agl_navigator"))
 		type = agl_navigator;
